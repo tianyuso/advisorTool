@@ -1,0 +1,49 @@
+- statement: |-
+    CREATE TABLE book (
+      id int
+    );
+    COMMENT ON COLUMN book.id IS 'comments';
+  changeType: 1
+- statement: |-
+    ALTER TABLE t ADD (d int, a int);
+    COMMENT ON COLUMN t.d IS 'comments';
+    COMMENT ON COLUMN t.a IS 'comments';
+  changeType: 1
+- statement: CREATE TABLE t(a int);
+  changeType: 1
+  want:
+    - status: 2
+      code: 1032
+      title: column.comment
+      content: Comment is required for column "TEST_DB"."T"."A"
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: |-
+    ALTER TABLE t ADD (d int, a int);
+    COMMENT ON COLUMN t.a IS 'comments';
+  changeType: 1
+  want:
+    - status: 2
+      code: 1032
+      title: column.comment
+      content: Comment is required for column "TEST_DB"."T"."D"
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: |-
+    CREATE TABLE t(a int);
+    COMMENT ON COLUMN t.a IS 'comments';
+    COMMENT ON COLUMN t.a IS '';
+  changeType: 1
+  want:
+    - status: 2
+      code: 1032
+      title: column.comment
+      content: Comment is required for column "TEST_DB"."T"."A"
+      startposition:
+        line: 1
+        column: 0
+      endposition: null

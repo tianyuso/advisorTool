@@ -1,0 +1,35 @@
+- statement: CREATE TABLE MyTable(a VARCHAR(20));
+  changeType: 1
+- statement: ALTER TABLE MyTable ADD b VARCHAR(3000);
+  changeType: 1
+  want:
+    - status: 2
+      code: 422
+      title: column.maximum-varchar-length
+      content: The maximum varchar length is 2560.
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: ALTER TABLE MyTable ALTER COLUMN a VARCHAR(MAX);
+  changeType: 1
+  want:
+    - status: 2
+      code: 422
+      title: column.maximum-varchar-length
+      content: The maximum varchar length is 2560.
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: ALTER TABLE MyTable ALTER COLUMN a NVARCHAR(MAX);
+  changeType: 1
+  want:
+    - status: 2
+      code: 422
+      title: column.maximum-varchar-length
+      content: The maximum varchar length is 2560.
+      startposition:
+        line: 1
+        column: 0
+      endposition: null

@@ -1,0 +1,29 @@
+- statement: CREATE TABLE "CONNECT"(ID INT);
+  changeType: 1
+  want:
+    - status: 2
+      code: 308
+      title: naming.table.no-keyword
+      content: Table name "CONNECT" is a keyword identifier and should be avoided.
+      startposition: null
+      endposition: null
+- statement: CREATE TABLE "DB_NAME"."SCHEMA_NAME"."CONNECT"(ID INT);
+  changeType: 1
+  want:
+    - status: 2
+      code: 308
+      title: naming.table.no-keyword
+      content: Table name "CONNECT" is a keyword identifier and should be avoided.
+      startposition: null
+      endposition: null
+- statement: CREATE TABLE "DB_NAME"."SCHEMA_NAME"."TABLE_NAME"(ID INT);
+  changeType: 1
+- statement: ALTER TABLE "DB_NAME"."SCHEMA_NAME"."TABLE_NAME" RENAME TO "CONNECT";
+  changeType: 1
+  want:
+    - status: 2
+      code: 308
+      title: naming.table.no-keyword
+      content: Table name "CONNECT" is a keyword identifier and should be avoided.
+      startposition: null
+      endposition: null

@@ -1,0 +1,189 @@
+# PostgreSQL SQL Review Configuration
+# 此配置文件定义了 PostgreSQL 数据库的 SQL 审核规则
+name: postgres-review-config
+
+rules:
+  # ==================== Naming 命名规则 ====================
+  - type: naming.fully-qualified
+    level: WARNING
+    comment: 要求使用完全限定的对象名（schema.table）
+
+  - type: naming.table
+    level: WARNING
+    payload: '{"format":"^[a-z][a-z0-9_]*$","maxLength":63}'
+    comment: 表名必须使用小写字母和下划线的组合
+
+  - type: naming.column
+    level: WARNING
+    payload: '{"format":"^[a-z][a-z0-9_]*$","maxLength":63}'
+    comment: 列名必须使用小写字母和下划线的组合
+
+  - type: naming.index.pk
+    level: WARNING
+    payload: '{"format":"^pk_{{table}}_{{column_list}}$","maxLength":63}'
+    comment: 主键命名规范，如 pk_user_id
+
+  - type: naming.index.idx
+    level: WARNING
+    payload: '{"format":"^idx_{{table}}_{{column_list}}$","maxLength":63}'
+    comment: 索引命名规范，如 idx_user_name
+
+  - type: naming.index.uk
+    level: WARNING
+    payload: '{"format":"^uk_{{table}}_{{column_list}}$","maxLength":63}'
+    comment: 唯一键命名规范，如 uk_user_email
+
+  - type: naming.index.fk
+    level: WARNING
+    payload: '{"format":"^fk_{{referencing_table}}_{{referencing_column}}_{{referenced_table}}_{{referenced_column}}$","maxLength":63}'
+    comment: 外键命名规范
+
+  # ==================== Statement 语句规则 ====================
+  - type: statement.select.no-select-all
+    level: WARNING
+    comment: 禁止使用 SELECT *
+
+  - type: statement.where.require.select
+    level: WARNING
+    comment: SELECT 语句必须包含 WHERE 子句
+
+  - type: statement.where.require.update-delete
+    level: ERROR
+    comment: UPDATE/DELETE 语句必须包含 WHERE 子句
+
+  - type: statement.where.no-leading-wildcard-like
+    level: WARNING
+    comment: 禁止在 LIKE 中使用前导通配符 %
+
+  - type: statement.disallow-commit
+    level: ERROR
+    comment: 禁止使用 COMMIT 语句
+
+  - type: statement.merge-alter-table
+    level: WARNING
+    comment: 同一表的 ALTER TABLE 语句应该合并
+
+  - type: statement.insert.must-specify-column
+    level: WARNING
+    comment: INSERT 语句必须指定列名
+
+  - type: statement.insert.disallow-order-by-rand
+    level: WARNING
+    comment: 禁止在 INSERT 中使用 ORDER BY RANDOM()
+
+  - type: statement.insert.row-limit
+    level: WARNING
+    payload: '{"number":1000}'
+    comment: 限制单次 INSERT 的行数不超过 1000
+
+  - type: statement.affected-row-limit
+    level: WARNING
+    payload: '{"number":10000}'
+    comment: 限制 UPDATE/DELETE 影响的行数不超过 10000
+
+  - type: statement.dml-dry-run
+    level: WARNING
+    comment: 执行 DML 语句前进行空运行验证
+
+  - type: statement.disallow-add-column-with-default
+    level: WARNING
+    comment: 禁止添加带有默认值的列（会锁表）
+
+  - type: statement.add-check-not-valid
+    level: WARNING
+    comment: 添加 CHECK 约束时必须使用 NOT VALID 选项
+
+  - type: statement.add-foreign-key-not-valid
+    level: WARNING
+    comment: 添加外键时必须使用 NOT VALID 选项
+
+  - type: statement.disallow-add-not-null
+    level: WARNING
+    comment: 禁止直接添加 NOT NULL 约束
+
+  # ==================== Table 表规则 ====================
+  - type: table.require-pk
+    level: ERROR
+    comment: 表必须有主键
+
+  - type: table.no-foreign-key
+    level: WARNING
+    comment: 禁止使用外键
+
+  - type: table.drop-naming-convention
+    level: WARNING
+    payload: '{"format":"_del$"}'
+    comment: 删除表前需要先重命名（添加 _del 后缀）
+
+  - type: table.disallow-partition
+    level: WARNING
+    comment: 禁止使用分区表
+
+  # ==================== Column 列规则 ====================
+  - type: column.required
+    level: ERROR
+    payload: '{"list":["id","created_at","updated_at"]}'
+    comment: 每个表必须包含 id, created_at, updated_at 列
+
+  - type: column.no-null
+    level: WARNING
+    comment: 列不允许为 NULL
+
+  - type: column.disallow-change-type
+    level: WARNING
+    comment: 禁止改变列类型
+
+  - type: column.type-disallow-list
+    level: WARNING
+    payload: '{"list":["money"]}'
+    comment: 禁止使用 money 类型
+
+  - type: column.maximum-character-length
+    level: WARNING
+    payload: '{"number":20}'
+    comment: CHAR 类型最大长度为 20
+
+  - type: column.require-default
+    level: WARNING
+    comment: 列必须有默认值
+
+  - type: column.default-disallow-volatile
+    level: WARNING
+    comment: 禁止使用 volatile 函数作为默认值
+
+  # ==================== Schema 模式规则 ====================
+  - type: schema.backward-compatibility
+    level: ERROR
+    comment: 禁止向后不兼容的模式变更
+
+  # ==================== Index 索引规则 ====================
+  - type: index.no-duplicate-column
+    level: ERROR
+    comment: 索引键中禁止重复列
+
+  - type: index.key-number-limit
+    level: WARNING
+    payload: '{"number":5}'
+    comment: 单个索引最多包含 5 个列
+
+  - type: index.total-number-limit
+    level: WARNING
+    payload: '{"number":10}'
+    comment: 单个表最多 10 个索引
+
+  - type: index.primary-key-type-allowlist
+    level: WARNING
+    payload: '{"list":["integer","bigint","uuid"]}'
+    comment: 主键类型只能是 integer, bigint 或 uuid
+
+  - type: index.create-concurrently
+    level: ERROR
+    comment: 创建索引必须使用 CONCURRENTLY 选项
+
+  # ==================== System 系统规则 ====================
+  - type: system.comment.length
+    level: WARNING
+    payload: '{"number":256}'
+    comment: 注释长度限制为 256 字符
+
+

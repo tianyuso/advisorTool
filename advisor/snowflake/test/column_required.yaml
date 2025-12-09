@@ -1,0 +1,88 @@
+- statement: |-
+    CREATE TABLE t (
+      "id" INT,
+      "creator_id" INT,
+      "created_ts" INT,
+      "updated_ts" INT,
+      "updater_id" INT
+    );
+  changeType: 1
+- statement: |-
+    CREATE TABLE t (
+      "name" TEXT,
+      "age" INT
+    );
+  changeType: 1
+  want:
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "created_ts"
+      startposition:
+        line: 3
+        column: 0
+      endposition: null
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "creator_id"
+      startposition:
+        line: 3
+        column: 0
+      endposition: null
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "id"
+      startposition:
+        line: 3
+        column: 0
+      endposition: null
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "updated_ts"
+      startposition:
+        line: 3
+        column: 0
+      endposition: null
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "updater_id"
+      startposition:
+        line: 3
+        column: 0
+      endposition: null
+- statement: |-
+    CREATE TABLE t (
+      "id" INT,
+      "creator_id" INT,
+      "created_ts" INT,
+      "updater_id" INT
+    );
+  changeType: 1
+  want:
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "updated_ts"
+      startposition:
+        line: 5
+        column: 0
+      endposition: null
+- statement: ALTER TABLE t DROP COLUMN "created_ts";
+  changeType: 1
+  want:
+    - status: 2
+      code: 401
+      title: column.required
+      content: Table t missing required column "created_ts"
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: ALTER TABLE t DROP COLUMN creator_id;
+  changeType: 1
+- statement: ALTER TABLE TARGET_TABLE ALTER COLUMN description DROP DEFAULT, COLUMN description DROP NOT NULL;
+  changeType: 1

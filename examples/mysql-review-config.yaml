@@ -1,0 +1,244 @@
+# MySQL SQL Review Configuration
+# 此配置文件定义了 MySQL 数据库的 SQL 审核规则
+name: mysql-review-config
+
+rules:
+  # ==================== Engine 规则 ====================
+  - type: engine.mysql.use-innodb
+    level: ERROR
+    comment: 要求使用 InnoDB 存储引擎
+
+  # ==================== Naming 命名规则 ====================
+  - type: naming.table
+    level: WARNING
+    payload: '{"format":"^[a-z][a-z0-9_]*$","maxLength":64}'
+    comment: 表名必须使用小写字母和下划线的组合
+
+  - type: naming.column
+    level: WARNING
+    payload: '{"format":"^[a-z][a-z0-9_]*$","maxLength":64}'
+    comment: 列名必须使用小写字母和下划线的组合
+
+  - type: naming.index.idx
+    level: WARNING
+    payload: '{"format":"^idx_{{table}}_{{column_list}}$","maxLength":64}'
+    comment: 索引命名规范，如 idx_user_name
+
+  - type: naming.index.uk
+    level: WARNING
+    payload: '{"format":"^uk_{{table}}_{{column_list}}$","maxLength":64}'
+    comment: 唯一键命名规范，如 uk_user_email
+
+  - type: naming.index.fk
+    level: WARNING
+    payload: '{"format":"^fk_{{referencing_table}}_{{referencing_column}}_{{referenced_table}}_{{referenced_column}}$","maxLength":64}'
+    comment: 外键命名规范
+
+  - type: naming.column.auto-increment
+    level: WARNING
+    payload: '{"format":"^id$","maxLength":64}'
+    comment: 自增列必须命名为 id
+
+  # ==================== Statement 语句规则 ====================
+  - type: statement.select.no-select-all
+    level: WARNING
+    comment: 禁止使用 SELECT *
+
+  - type: statement.where.require.select
+    level: WARNING
+    comment: SELECT 语句必须包含 WHERE 子句
+
+  - type: statement.where.require.update-delete
+    level: ERROR
+    comment: UPDATE/DELETE 语句必须包含 WHERE 子句
+
+  - type: statement.where.no-leading-wildcard-like
+    level: WARNING
+    comment: 禁止在 LIKE 中使用前导通配符 %
+
+  - type: statement.disallow-commit
+    level: ERROR
+    comment: 禁止使用 COMMIT 语句
+
+  - type: statement.disallow-limit
+    level: WARNING
+    comment: 禁止在 INSERT/UPDATE/DELETE 中使用 LIMIT
+
+  - type: statement.disallow-order-by
+    level: WARNING
+    comment: 禁止在 UPDATE/DELETE 中使用 ORDER BY
+
+  - type: statement.merge-alter-table
+    level: WARNING
+    comment: 同一表的 ALTER TABLE 语句应该合并
+
+  - type: statement.insert.must-specify-column
+    level: WARNING
+    comment: INSERT 语句必须指定列名
+
+  - type: statement.insert.disallow-order-by-rand
+    level: WARNING
+    comment: 禁止在 INSERT 中使用 ORDER BY RAND()
+
+  - type: statement.insert.row-limit
+    level: WARNING
+    payload: '{"number":1000}'
+    comment: 限制单次 INSERT 的行数不超过 1000
+
+  - type: statement.affected-row-limit
+    level: WARNING
+    payload: '{"number":10000}'
+    comment: 限制 UPDATE/DELETE 影响的行数不超过 10000
+
+  - type: statement.dml-dry-run
+    level: WARNING
+    comment: 执行 DML 语句前进行空运行验证
+
+  # ==================== Table 表规则 ====================
+  - type: table.require-pk
+    level: ERROR
+    comment: 表必须有主键
+
+  - type: table.no-foreign-key
+    level: WARNING
+    comment: 禁止使用外键
+
+  - type: table.drop-naming-convention
+    level: WARNING
+    payload: '{"format":"_del$"}'
+    comment: 删除表前需要先重命名（添加 _del 后缀）
+
+  - type: table.comment
+    level: WARNING
+    payload: '{"required":true,"maxLength":256}'
+    comment: 表必须有注释，且长度不超过 256 字符
+
+  - type: table.disallow-partition
+    level: WARNING
+    comment: 禁止使用分区表
+
+  - type: table.no-duplicate-index
+    level: ERROR
+    comment: 禁止重复索引
+
+  # ==================== Column 列规则 ====================
+  - type: column.required
+    level: ERROR
+    payload: '{"list":["id","created_at","updated_at"]}'
+    comment: 每个表必须包含 id, created_at, updated_at 列
+
+  - type: column.no-null
+    level: WARNING
+    comment: 列不允许为 NULL
+
+  - type: column.disallow-change-type
+    level: WARNING
+    comment: 禁止改变列类型
+
+  - type: column.set-default-for-not-null
+    level: WARNING
+    comment: NOT NULL 列必须设置默认值
+
+  - type: column.disallow-change
+    level: WARNING
+    comment: 禁止使用 CHANGE COLUMN 语句
+
+  - type: column.disallow-changing-order
+    level: WARNING
+    comment: 禁止改变列顺序
+
+  - type: column.auto-increment-must-integer
+    level: ERROR
+    comment: 自增列必须是整数类型
+
+  - type: column.type-disallow-list
+    level: WARNING
+    payload: '{"list":["BLOB","LONGBLOB","MEDIUMBLOB","TINYBLOB"]}'
+    comment: 禁止使用 BLOB 类型
+
+  - type: column.disallow-set-charset
+    level: WARNING
+    comment: 禁止在列级别设置字符集
+
+  - type: column.auto-increment-must-unsigned
+    level: WARNING
+    comment: 自增列必须是无符号类型
+
+  - type: column.comment
+    level: WARNING
+    payload: '{"required":true,"maxLength":256}'
+    comment: 列必须有注释
+
+  - type: column.maximum-character-length
+    level: WARNING
+    payload: '{"number":20}'
+    comment: CHAR 类型最大长度为 20
+
+  - type: column.auto-increment-initial-value
+    level: WARNING
+    payload: '{"number":1}'
+    comment: 自增列初始值必须为 1
+
+  - type: column.current-time-count-limit
+    level: WARNING
+    payload: '{"number":2}'
+    comment: 当前时间列数量限制
+
+  - type: column.require-default
+    level: WARNING
+    comment: 列必须有默认值
+
+  - type: column.disallow-drop-in-index
+    level: ERROR
+    comment: 禁止删除索引中的列
+
+  # ==================== Schema 模式规则 ====================
+  - type: schema.backward-compatibility
+    level: ERROR
+    comment: 禁止向后不兼容的模式变更
+
+  # ==================== Database 数据库规则 ====================
+  - type: database.drop-empty-database
+    level: WARNING
+    comment: 只能删除空数据库
+
+  # ==================== Index 索引规则 ====================
+  - type: index.no-duplicate-column
+    level: ERROR
+    comment: 索引键中禁止重复列
+
+  - type: index.key-number-limit
+    level: WARNING
+    payload: '{"number":5}'
+    comment: 单个索引最多包含 5 个列
+
+  - type: index.pk-type-limit
+    level: WARNING
+    comment: 主键类型限制为 INT 或 BIGINT
+
+  - type: index.type-no-blob
+    level: ERROR
+    comment: 禁止在 BLOB/TEXT 类型列上创建索引
+
+  - type: index.total-number-limit
+    level: WARNING
+    payload: '{"number":10}'
+    comment: 单个表最多 10 个索引
+
+  - type: index.primary-key-type-allowlist
+    level: WARNING
+    payload: '{"list":["INT","BIGINT"]}'
+    comment: 主键类型只能是 INT 或 BIGINT
+
+  # ==================== System 系统规则 ====================
+  - type: system.charset.allowlist
+    level: WARNING
+    payload: '{"list":["utf8mb4","utf8"]}'
+    comment: 只允许使用 utf8mb4 和 utf8 字符集
+
+  - type: system.collation.allowlist
+    level: WARNING
+    payload: '{"list":["utf8mb4_general_ci","utf8mb4_unicode_ci","utf8_general_ci"]}'
+    comment: 只允许使用指定的排序规则
+
+

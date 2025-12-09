@@ -1,0 +1,13 @@
+- statement: DROP TABLE IF EXISTS "FOO_delete"
+  changeType: 1
+- statement: DROP TABLE IF EXISTS FOO
+  changeType: 1
+  want:
+    - status: 2
+      code: 603
+      title: table.drop-naming-convention
+      content: '"FOO" mismatches drop table naming convention, naming format should be "_delete$"'
+      startposition:
+        line: 1
+        column: 0
+      endposition: null

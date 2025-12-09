@@ -1,0 +1,26 @@
+- statement: UPDATE MyTable SET a = 1;
+  changeType: 1
+  want:
+    - status: 2
+      code: 202
+      title: statement.where.require.update-delete
+      content: WHERE clause is required for UPDATE statement.
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: UPDATE MyTable SET a = 1 WHERE a = 1;
+  changeType: 1
+- statement: DELETE FROM MyTable;
+  changeType: 1
+  want:
+    - status: 2
+      code: 202
+      title: statement.where.require.update-delete
+      content: WHERE clause is required for DELETE statement.
+      startposition:
+        line: 1
+        column: 0
+      endposition: null
+- statement: DELETE FROM MyTable WHERE a = 1;
+  changeType: 1

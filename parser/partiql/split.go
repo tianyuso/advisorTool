@@ -1,0 +1,22 @@
+package partiql
+
+import (
+	"github.com/antlr4-go/antlr/v4"
+	parser "github.com/bytebase/parser/partiql"
+
+	storepb "advisorTool/generated-go/store"
+	"advisorTool/parser/base"
+)
+
+func init() {
+	base.RegisterSplitterFunc(storepb.Engine_DYNAMODB, SplitSQL)
+}
+
+// SplitSQL splits the input into multiple SQL statements using semicolon as delimiter.
+func SplitSQL(statement string) ([]base.SingleSQL, error) {
+	lexer := parser.NewPartiQLLexer(antlr.NewInputStream(statement))
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+	stream.Fill()
+
+	return base.SplitSQLByLexer(stream, parser.PartiQLLexerCOLON_SEMI, statement)
+}
