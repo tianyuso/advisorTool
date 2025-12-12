@@ -17,7 +17,7 @@ var (
 	engine         = flag.String("engine", "", "Database engine: mysql, postgres, tidb, oracle, mssql, snowflake, mariadb, oceanbase")
 	sqlFile        = flag.String("file", "", "Path to the SQL file to review")
 	sqlStatement   = flag.String("sql", "", "SQL statement to review (use - to read from stdin)")
-	outputFormat   = flag.String("format", "text", "Output format: text, json, yaml")
+	outputFormat   = flag.String("format", "table", "Output format: json, table")
 	listRules      = flag.Bool("list-rules", false, "List all available rules")
 	generateConfig = flag.Bool("generate-config", false, "Generate a sample config file for the specified engine")
 	version        = flag.Bool("version", false, "Print version information")

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 
@@ -40,45 +39,61 @@ type DBConnectionParams struct {
 	Timeout     int
 }
 
-// ConvertToReviewResults converts advisor response to Inception-compatible format.
-func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engineType advisor.Engine, dbParams *DBConnectionParams) []ReviewResult {
-	// Split SQL statements by semicolon
+// CalculateAffectedRowsForStatements calculates affected rows for all SQL statements.
+// Returns a map of SQL index to affected rows count.
+func CalculateAffectedRowsForStatements(statement string, engineType advisor.Engine, dbParams *DBConnectionParams) map[int]int {
+	affectedRowsMap := make(map[int]int)
+
+	if dbParams == nil || dbParams.Host == "" || dbParams.Port == 0 {
+		return affectedRowsMap
+	}
+
 	sqlStatements := SplitSQL(statement)
 
-	// 尝试获取数据库连接以计算影响行数（如果提供了连接参数）
-	var dbConn *sql.DB
-	if dbParams != nil && dbParams.Host != "" && dbParams.Port > 0 {
-		config := &db.ConnectionConfig{
-			DbType:      GetDbTypeString(engineType),
-			Host:        dbParams.Host,
-			Port:        dbParams.Port,
-			User:        dbParams.User,
-			Password:    dbParams.Password,
-			DbName:      dbParams.DbName,
-			Charset:     dbParams.Charset,
-			ServiceName: dbParams.ServiceName,
-			Sid:         dbParams.Sid,
-			SSLMode:     dbParams.SSLMode,
-			Timeout:     dbParams.Timeout,
-		}
-		conn, err := db.OpenConnection(context.Background(), config)
+	// 打开数据库连接
+	config := &db.ConnectionConfig{
+		DbType:      GetDbTypeString(engineType),
+		Host:        dbParams.Host,
+		Port:        dbParams.Port,
+		User:        dbParams.User,
+		Password:    dbParams.Password,
+		DbName:      dbParams.DbName,
+		Charset:     dbParams.Charset,
+		ServiceName: dbParams.ServiceName,
+		Sid:         dbParams.Sid,
+		SSLMode:     dbParams.SSLMode,
+		Timeout:     dbParams.Timeout,
+	}
+
+	dbConn, err := db.OpenConnection(context.Background(), config)
+	if err != nil {
+		return affectedRowsMap
+	}
+	defer dbConn.Close()
+
+	// 计算每个 SQL 语句的影响行数
+	for i, sql := range sqlStatements {
+		count, err := db.CalculateAffectedRows(context.Background(), dbConn, sql, engineType)
 		if err == nil {
-			dbConn = conn
-			defer conn.Close()
+			affectedRowsMap[i] = count
 		}
 	}
+
+	return affectedRowsMap
+}
+
+// ConvertToReviewResults converts advisor response to Inception-compatible format.
+func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engineType advisor.Engine, affectedRowsMap map[int]int) []ReviewResult {
+	// Split SQL statements by semicolon
+	sqlStatements := SplitSQL(statement)
 
 	// If no issues found, return success for each statement
 	if len(resp.Advices) == 0 {
 		var results []ReviewResult
 		for i, sql := range sqlStatements {
 			affectedRows := 0
-			if dbConn != nil {
-				// 计算影响行数
-				count, err := db.CalculateAffectedRows(context.Background(), dbConn, sql, engineType)
-				if err == nil {
-					affectedRows = count
-				}
+			if count, ok := affectedRowsMap[i]; ok {
+				affectedRows = count
 			}
 
 			results = append(results, ReviewResult{
@@ -134,11 +149,8 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 
 		// 计算影响行数
 		affectedRows := 0
-		if dbConn != nil {
-			count, err := db.CalculateAffectedRows(context.Background(), dbConn, sql, engineType)
-			if err == nil {
-				affectedRows = count
-			}
+		if count, ok := affectedRowsMap[i]; ok {
+			affectedRows = count
 		}
 
 		results = append(results, ReviewResult{
