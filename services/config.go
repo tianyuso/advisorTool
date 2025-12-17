@@ -1,5 +1,5 @@
-// Package internal provides internal utilities for the advisor CLI tool.
-package internal
+// Package services provides utilities for the advisor tool that can be imported by external programs.
+package services
 
 import (
 	"encoding/json"
@@ -337,3 +337,4 @@ func GenerateSampleConfig(engineType advisor.Engine) string {
 	data, _ := yaml.Marshal(config)
 	return string(data)
 }
+

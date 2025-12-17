@@ -206,57 +206,699 @@ cat schema.sql | ./advisor -engine mysql -sql -
 
 ### 作为 Go 库使用
 
+以下示例展示如何在 Go 项目中直接使用 SQL Advisor 库进行 PostgreSQL 的 SQL 审核。
+
+#### 基础用法（不连接数据库）
+
 ```go
 package main
 
 import (
-    "context"
-    "fmt"
-    
-    "advisorTool/pkg/advisor"
+	"context"
+	"fmt"
+	"log"
+
+	"advisorTool/pkg/advisor"
 )
 
 func main() {
-    // 定义审核规则
-    rules := []*advisor.SQLReviewRule{
-        advisor.NewRule(advisor.RuleStatementNoSelectAll, advisor.RuleLevelWarning),
-        advisor.NewRule(advisor.RuleStatementRequireWhereForUpdateDelete, advisor.RuleLevelError),
-        advisor.NewRule(advisor.RuleTableRequirePK, advisor.RuleLevelError),
-    }
-    
-    // 创建审核请求
-    req := &advisor.ReviewRequest{
-        Engine:    advisor.EngineMySQL,
-        Statement: "SELECT * FROM users; DELETE FROM orders;",
-        Rules:     rules,
-        CurrentDatabase: "mydb",  // 可选
-    }
-    
-    // 执行审核
-    resp, err := advisor.SQLReviewCheck(context.Background(), req)
-    if err != nil {
-        panic(err)
-    }
-    
-    // 处理结果
-    for _, advice := range resp.Advices {
-        fmt.Printf("[%s] %s: %s\n", advice.Status, advice.Title, advice.Content)
-        if advice.StartPosition != nil {
-            fmt.Printf("  位置: 行 %d, 列 %d\n", 
-                      advice.StartPosition.Line, 
-                      advice.StartPosition.Column)
-        }
-    }
-    
-    if resp.HasError {
-        fmt.Println("❌ 审核发现错误!")
-    } else if resp.HasWarning {
-        fmt.Println("⚠️ 审核发现警告")
-    } else {
-        fmt.Println("✅ 审核通过")
-    }
+	// 1. 定义要审核的 SQL 语句
+	sql := `
+-- 创建用户表
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 查询用户（存在问题的 SQL）
+SELECT * FROM users;
+
+-- 没有 WHERE 条件的更新（高危操作）
+UPDATE users SET status = 'active';
+`
+
+	// 2. 配置审核规则
+	rules := []*advisor.SQLReviewRule{
+		// 错误级别：UPDATE/DELETE 必须有 WHERE 条件
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete),
+			advisor.RuleLevelError,
+		),
+		
+		// 警告级别：禁止 SELECT *
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementNoSelectAll),
+			advisor.RuleLevelWarning,
+		),
+		
+		// 警告级别：表必须有主键
+		advisor.NewRule(
+			string(advisor.SchemaRuleTableRequirePK),
+			advisor.RuleLevelError,
+		),
+		
+		// 警告级别：禁止外键
+		advisor.NewRule(
+			string(advisor.SchemaRuleTableNoFK),
+			advisor.RuleLevelWarning,
+		),
+	}
+
+	// 3. 构建审核请求
+	req := &advisor.ReviewRequest{
+		Engine:          advisor.EnginePostgres,
+		Statement:       sql,
+		CurrentDatabase: "mydb",
+		Rules:           rules,
+	}
+
+	// 4. 执行 SQL 审核
+	ctx := context.Background()
+	resp, err := advisor.SQLReviewCheck(ctx, req)
+	if err != nil {
+		log.Fatalf("SQL 审核失败: %v", err)
+	}
+
+	// 5. 输出审核结果
+	fmt.Printf("审核完成，共发现 %d 个问题\n\n", len(resp.Advices))
+	
+	for i, advice := range resp.Advices {
+		// 根据状态设置颜色标记
+		statusStr := ""
+		switch advice.Status {
+		case advisor.AdviceStatusError:
+			statusStr = "❌ [ERROR]"
+		case advisor.AdviceStatusWarning:
+			statusStr = "⚠️  [WARNING]"
+		case advisor.AdviceStatusSuccess:
+			statusStr = "✅ [OK]"
+		}
+		
+		fmt.Printf("%d. %s %s\n", i+1, statusStr, advice.Title)
+		fmt.Printf("   内容: %s\n", advice.Content)
+		if advice.StartPosition != nil {
+			fmt.Printf("   位置: Line %d\n", advice.StartPosition.Line)
+		}
+		fmt.Println()
+	}
+
+	// 6. 根据审核结果决定是否允许执行
+	if resp.HasError {
+		fmt.Println("❌ SQL 审核不通过，存在错误级别的问题，拒绝执行！")
+	} else if resp.HasWarning {
+		fmt.Println("⚠️  SQL 审核通过，但存在警告，建议修改后再执行")
+	} else {
+		fmt.Println("✅ SQL 审核通过，可以安全执行")
+	}
 }
 ```
+
+#### 高级用法（连接数据库获取元数据）
+
+连接数据库可以启用更多需要元数据的审核规则，如列 NULL 检查、向后兼容性检查等。
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"advisorTool/db"
+	"advisorTool/pkg/advisor"
+)
+
+func main() {
+	// 1. 数据库连接配置
+	dbConfig := &db.ConnectionConfig{
+		DbType:   "postgres",
+		Host:     "127.0.0.1",
+		Port:     5432,
+		User:     "postgres",
+		Password: "secret",
+		DbName:   "mydb",
+		SSLMode:  "disable",
+		Timeout:  10,
+	}
+
+	// 2. 连接数据库并获取元数据
+	ctx := context.Background()
+	conn, err := db.OpenConnection(ctx, dbConfig)
+	if err != nil {
+		log.Fatalf("连接数据库失败: %v", err)
+	}
+	defer conn.Close()
+
+	// 获取数据库 schema 元数据
+	metadata, err := db.GetDatabaseMetadata(ctx, conn, dbConfig)
+	if err != nil {
+		log.Fatalf("获取数据库元数据失败: %v", err)
+	}
+
+	// 3. 要审核的 SQL（修改现有表）
+	sql := `
+-- 添加新列（不兼容：没有默认值的 NOT NULL 列）
+ALTER TABLE mydata.users ADD COLUMN age INT NOT NULL;
+
+-- 修改列类型（可能不兼容）
+ALTER TABLE mydata.users ALTER COLUMN username TYPE VARCHAR(20);
+
+-- 删除列（不兼容）
+ALTER TABLE mydata.users DROP COLUMN email;
+`
+
+	// 4. 配置更多审核规则（包括需要元数据的规则）
+	rules := []*advisor.SQLReviewRule{
+		// 基础规则
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete),
+			advisor.RuleLevelError,
+		),
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementNoSelectAll),
+			advisor.RuleLevelWarning,
+		),
+		
+		// 需要元数据的规则
+		
+		// 列不能为 NULL（需要知道现有列定义）
+		advisor.NewRule(
+			string(advisor.SchemaRuleColumnNotNull),
+			advisor.RuleLevelWarning,
+		),
+		
+		// 向后兼容性检查（需要对比变更前后的 schema）
+		advisor.NewRule(
+			string(advisor.SchemaRuleSchemaBackwardCompatibility),
+			advisor.RuleLevelError,
+		),
+		
+		// 列需要默认值
+		advisor.NewRule(
+			string(advisor.SchemaRuleColumnRequireDefault),
+			advisor.RuleLevelWarning,
+		),
+		
+		// PostgreSQL 特定规则
+		advisor.NewRule(
+			string(advisor.SchemaRuleCreateIndexConcurrently),
+			advisor.RuleLevelError,
+		),
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementDisallowAddColumnWithDefault),
+			advisor.RuleLevelWarning,
+		),
+	}
+
+	// 5. 构建带元数据的审核请求
+	req := &advisor.ReviewRequest{
+		Engine:          advisor.EnginePostgres,
+		Statement:       sql,
+		CurrentDatabase: "mydb",
+		Rules:           rules,
+		DBSchema:        metadata, // 提供元数据
+	}
+
+	// 6. 执行审核
+	resp, err := advisor.SQLReviewCheck(ctx, req)
+	if err != nil {
+		log.Fatalf("SQL 审核失败: %v", err)
+	}
+
+	// 7. 输出详细的审核结果
+	fmt.Printf("=== SQL 审核报告 ===\n")
+	fmt.Printf("数据库: %s@%s:%d/%s\n", dbConfig.User, dbConfig.Host, dbConfig.Port, dbConfig.DbName)
+	fmt.Printf("审核规则数: %d\n", len(rules))
+	fmt.Printf("发现问题数: %d\n\n", len(resp.Advices))
+
+	if len(resp.Advices) == 0 {
+		fmt.Println("✅ 未发现任何问题，SQL 完全符合规范！")
+		return
+	}
+
+	// 按严重程度分组显示
+	errors := []*advisor.Advice{}
+	warnings := []*advisor.Advice{}
+	
+	for _, advice := range resp.Advices {
+		switch advice.Status {
+		case advisor.AdviceStatusError:
+			errors = append(errors, advice)
+		case advisor.AdviceStatusWarning:
+			warnings = append(warnings, advice)
+		}
+	}
+
+	if len(errors) > 0 {
+		fmt.Printf("❌ 错误 (%d):\n", len(errors))
+		for i, advice := range errors {
+			fmt.Printf("  %d. [%s] %s\n", i+1, advice.Code, advice.Title)
+			fmt.Printf("     %s\n", advice.Content)
+			if advice.StartPosition != nil {
+				fmt.Printf("     位置: Line %d, Column %d\n", 
+					advice.StartPosition.Line, advice.StartPosition.Column)
+			}
+			fmt.Println()
+		}
+	}
+
+	if len(warnings) > 0 {
+		fmt.Printf("⚠️  警告 (%d):\n", len(warnings))
+		for i, advice := range warnings {
+			fmt.Printf("  %d. [%s] %s\n", i+1, advice.Code, advice.Title)
+			fmt.Printf("     %s\n", advice.Content)
+			if advice.StartPosition != nil {
+				fmt.Printf("     位置: Line %d, Column %d\n", 
+					advice.StartPosition.Line, advice.StartPosition.Column)
+			}
+			fmt.Println()
+		}
+	}
+
+	// 8. 决策建议
+	fmt.Println("\n=== 决策建议 ===")
+	if resp.HasError {
+		fmt.Println("❌ 存在错误级别问题，强烈建议修复后再执行")
+		fmt.Println("   这些问题可能导致：数据丢失、服务中断、向后不兼容等严重后果")
+	} else if resp.HasWarning {
+		fmt.Println("⚠️  存在警告级别问题，建议评估风险")
+		fmt.Println("   这些问题可能影响：性能、可维护性、最佳实践等")
+	} else {
+		fmt.Println("✅ 审核通过，可以安全执行")
+	}
+}
+```
+
+#### 使用自定义规则配置
+
+```go
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+
+	"advisorTool/pkg/advisor"
+)
+
+func main() {
+	// 1. 使用 Payload 配置规则参数
+	
+	// 表命名规范：必须是小写字母和下划线，最大长度 63
+	tableNamingRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleTableNaming),
+		advisor.RuleLevelWarning,
+		advisor.NamingRulePayload{
+			Format:    "^[a-z][a-z0-9_]*$",
+			MaxLength: 63,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 列命名规范
+	columnNamingRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleColumnNaming),
+		advisor.RuleLevelWarning,
+		advisor.NamingRulePayload{
+			Format:    "^[a-z][a-z0-9_]*$",
+			MaxLength: 63,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 索引命名规范：idx_表名_列名
+	idxNamingRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleIDXNaming),
+		advisor.RuleLevelWarning,
+		advisor.NamingRulePayload{
+			Format:    "^idx_{{table}}_{{column_list}}$",
+			MaxLength: 63,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 必需列：每个表必须包含这些列
+	requiredColumnsRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleRequiredColumn),
+		advisor.RuleLevelError,
+		advisor.StringArrayTypeRulePayload{
+			List: []string{"id", "created_at", "updated_at"},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// INSERT 行数限制
+	insertRowLimitRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleStatementInsertRowLimit),
+		advisor.RuleLevelWarning,
+		advisor.NumberTypeRulePayload{
+			Number: 1000,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 影响行数限制（UPDATE/DELETE）
+	affectedRowLimitRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleStatementAffectedRowLimit),
+		advisor.RuleLevelWarning,
+		advisor.NumberTypeRulePayload{
+			Number: 10000,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 禁止的列类型
+	typeDisallowRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleColumnTypeDisallowList),
+		advisor.RuleLevelError,
+		advisor.StringArrayTypeRulePayload{
+			List: []string{"money", "xml"},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// VARCHAR 最大长度
+	varcharLengthRule, err := advisor.NewRuleWithPayload(
+		string(advisor.SchemaRuleColumnMaximumVarcharLength),
+		advisor.RuleLevelWarning,
+		advisor.NumberTypeRulePayload{
+			Number: 2000,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 2. 组合所有规则
+	rules := []*advisor.SQLReviewRule{
+		tableNamingRule,
+		columnNamingRule,
+		idxNamingRule,
+		requiredColumnsRule,
+		insertRowLimitRule,
+		affectedRowLimitRule,
+		typeDisallowRule,
+		varcharLengthRule,
+		
+		// 其他基础规则
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementNoSelectAll),
+			advisor.RuleLevelWarning,
+		),
+		advisor.NewRule(
+			string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete),
+			advisor.RuleLevelError,
+		),
+		advisor.NewRule(
+			string(advisor.SchemaRuleTableRequirePK),
+			advisor.RuleLevelError,
+		),
+	}
+
+	// 3. 测试 SQL
+	sql := `
+CREATE TABLE UserProfile (  -- 表名不符合命名规范（应该是 user_profile）
+    user_id SERIAL PRIMARY KEY,
+    UserName VARCHAR(3000),  -- 列名不符合规范，VARCHAR 长度超限
+    balance MONEY,           -- 使用了禁止的 money 类型
+    notes TEXT
+    -- 缺少 created_at 和 updated_at 列
+);
+
+CREATE INDEX user_idx ON UserProfile(user_id);  -- 索引名不符合规范
+
+SELECT * FROM UserProfile;  -- 禁止 SELECT *
+`
+
+	// 4. 执行审核
+	req := &advisor.ReviewRequest{
+		Engine:          advisor.EnginePostgres,
+		Statement:       sql,
+		CurrentDatabase: "mydb",
+		Rules:           rules,
+	}
+
+	resp, err := advisor.SQLReviewCheck(context.Background(), req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 5. 输出结果（JSON 格式）
+	type Result struct {
+		TotalIssues int               `json:"total_issues"`
+		HasError    bool              `json:"has_error"`
+		HasWarning  bool              `json:"has_warning"`
+		Issues      []IssueDetail     `json:"issues"`
+	}
+
+	type IssueDetail struct {
+		Severity string `json:"severity"`
+		Rule     string `json:"rule"`
+		Title    string `json:"title"`
+		Message  string `json:"message"`
+		Line     int32  `json:"line"`
+		Column   int32  `json:"column"`
+	}
+
+	result := Result{
+		TotalIssues: len(resp.Advices),
+		HasError:    resp.HasError,
+		HasWarning:  resp.HasWarning,
+		Issues:      make([]IssueDetail, 0),
+	}
+
+	for _, advice := range resp.Advices {
+		severity := "info"
+		if advice.Status == advisor.AdviceStatusError {
+			severity = "error"
+		} else if advice.Status == advisor.AdviceStatusWarning {
+			severity = "warning"
+		}
+
+		issue := IssueDetail{
+			Severity: severity,
+			Rule:     fmt.Sprintf("code-%d", advice.Code),
+			Title:    advice.Title,
+			Message:  advice.Content,
+		}
+		
+		if advice.StartPosition != nil {
+			issue.Line = advice.StartPosition.Line
+			issue.Column = advice.StartPosition.Column
+		}
+
+		result.Issues = append(result.Issues, issue)
+	}
+
+	// 输出 JSON
+	output, _ := json.MarshalIndent(result, "", "  ")
+	fmt.Println(string(output))
+}
+```
+
+#### 批量审核多个 SQL 文件
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
+	"advisorTool/pkg/advisor"
+)
+
+func main() {
+	// 1. 定义审核规则（可以从配置文件加载）
+	rules := getDefaultPostgresRules()
+
+	// 2. 扫描 SQL 文件目录
+	sqlDir := "./migrations"
+	files, err := filepath.Glob(filepath.Join(sqlDir, "*.sql"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("发现 %d 个 SQL 文件，开始审核...\n\n", len(files))
+
+	totalIssues := 0
+	failedFiles := 0
+
+	// 3. 遍历审核每个文件
+	for _, file := range files {
+		fmt.Printf("📄 审核文件: %s\n", filepath.Base(file))
+
+		// 读取 SQL 文件
+		content, err := os.ReadFile(file)
+		if err != nil {
+			fmt.Printf("   ❌ 读取失败: %v\n\n", err)
+			continue
+		}
+
+		// 执行审核
+		req := &advisor.ReviewRequest{
+			Engine:          advisor.EnginePostgres,
+			Statement:       string(content),
+			CurrentDatabase: "mydb",
+			Rules:           rules,
+		}
+
+		resp, err := advisor.SQLReviewCheck(context.Background(), req)
+		if err != nil {
+			fmt.Printf("   ❌ 审核失败: %v\n\n", err)
+			continue
+		}
+
+		// 统计问题
+		if len(resp.Advices) == 0 {
+			fmt.Printf("   ✅ 通过\n\n")
+		} else {
+			totalIssues += len(resp.Advices)
+			if resp.HasError {
+				failedFiles++
+			}
+
+			fmt.Printf("   发现 %d 个问题:\n", len(resp.Advices))
+			for _, advice := range resp.Advices {
+				icon := "⚠️ "
+				if advice.Status == advisor.AdviceStatusError {
+					icon = "❌"
+				}
+				fmt.Printf("     %s Line %d: %s\n", 
+					icon, advice.StartPosition.GetLine(), advice.Title)
+			}
+			fmt.Println()
+		}
+	}
+
+	// 4. 输出总结
+	fmt.Println("==================== 审核总结 ====================")
+	fmt.Printf("总文件数: %d\n", len(files))
+	fmt.Printf("发现问题: %d\n", totalIssues)
+	fmt.Printf("不通过的文件: %d\n", failedFiles)
+	
+	if failedFiles > 0 {
+		fmt.Println("\n❌ 存在不符合规范的 SQL 文件，请修复后重新提交")
+		os.Exit(1)
+	} else {
+		fmt.Println("\n✅ 所有 SQL 文件审核通过！")
+	}
+}
+
+func getDefaultPostgresRules() []*advisor.SQLReviewRule {
+	return []*advisor.SQLReviewRule{
+		advisor.NewRule(string(advisor.SchemaRuleStatementNoSelectAll), advisor.RuleLevelWarning),
+		advisor.NewRule(string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete), advisor.RuleLevelError),
+		advisor.NewRule(string(advisor.SchemaRuleTableRequirePK), advisor.RuleLevelError),
+		advisor.NewRule(string(advisor.SchemaRuleTableNoFK), advisor.RuleLevelWarning),
+		advisor.NewRule(string(advisor.SchemaRuleCreateIndexConcurrently), advisor.RuleLevelError),
+	}
+}
+```
+
+#### 集成到 CI/CD 流程
+
+```go
+// ci_check.go - 用于 CI/CD 流程的 SQL 审核脚本
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"advisorTool/pkg/advisor"
+)
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("用法: ci_check <sql-file>")
+		os.Exit(1)
+	}
+
+	sqlFile := os.Args[1]
+	content, err := os.ReadFile(sqlFile)
+	if err != nil {
+		fmt.Printf("❌ 读取文件失败: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 使用严格的审核规则
+	rules := getStrictRules()
+
+	req := &advisor.ReviewRequest{
+		Engine:          advisor.EnginePostgres,
+		Statement:       string(content),
+		CurrentDatabase: os.Getenv("DB_NAME"),
+		Rules:           rules,
+	}
+
+	resp, err := advisor.SQLReviewCheck(context.Background(), req)
+	if err != nil {
+		fmt.Printf("❌ 审核失败: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 输出 GitHub Actions 格式的错误信息
+	for _, advice := range resp.Advices {
+		level := "warning"
+		if advice.Status == advisor.AdviceStatusError {
+			level = "error"
+		}
+		
+		// GitHub Actions annotation format
+		fmt.Printf("::%s file=%s,line=%d,col=%d::%s - %s\n",
+			level,
+			sqlFile,
+			advice.StartPosition.GetLine(),
+			advice.StartPosition.GetColumn(),
+			advice.Title,
+			advice.Content,
+		)
+	}
+
+	if resp.HasError {
+		fmt.Printf("\n❌ SQL 审核失败，发现 %d 个错误\n", len(resp.Advices))
+		os.Exit(2)
+	}
+
+	fmt.Printf("✅ SQL 审核通过\n")
+}
+
+func getStrictRules() []*advisor.SQLReviewRule {
+	// 返回最严格的规则集合
+	return []*advisor.SQLReviewRule{
+		advisor.NewRule(string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete), advisor.RuleLevelError),
+		advisor.NewRule(string(advisor.SchemaRuleTableRequirePK), advisor.RuleLevelError),
+		advisor.NewRule(string(advisor.SchemaRuleSchemaBackwardCompatibility), advisor.RuleLevelError),
+		advisor.NewRule(string(advisor.SchemaRuleCreateIndexConcurrently), advisor.RuleLevelError),
+	}
+}
+```
+
+更多规则类型和配置，请参考 [配置文件格式](#配置文件格式) 和 [可用规则列表](#可用规则列表) 章节。
 
 **高级用法 - 使用 Payload 配置**:
 

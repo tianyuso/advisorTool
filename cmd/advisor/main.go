@@ -8,8 +8,8 @@ import (
 	"io"
 	"os"
 
-	"advisorTool/cmd/advisor/internal"
 	"advisorTool/pkg/advisor"
+	"advisorTool/services"
 )
 
 var (
@@ -48,7 +48,7 @@ func main() {
 
 	// Handle list-rules flag
 	if *listRules {
-		internal.ListAvailableRules()
+		services.ListAvailableRules()
 		os.Exit(0)
 	}
 
@@ -68,7 +68,7 @@ func main() {
 
 	// Handle generate-config flag
 	if *generateConfig {
-		config := internal.GenerateSampleConfig(engineType)
+		config := services.GenerateSampleConfig(engineType)
 		fmt.Println(config)
 		os.Exit(0)
 	}
@@ -99,7 +99,7 @@ func main() {
 	// Check if database connection parameters are provided
 	hasMetadata := false
 	if dbParams.Host != "" && dbParams.Port > 0 {
-		metadata, err := internal.FetchDatabaseMetadata(engineType, dbParams)
+		metadata, err := services.FetchDatabaseMetadata(engineType, dbParams)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: Failed to fetch database metadata: %v\n", err)
 			fmt.Fprintf(os.Stderr, "Some rules that require metadata will be skipped.\n")
@@ -110,7 +110,7 @@ func main() {
 	}
 
 	// Load review rules
-	rules, err := internal.LoadRules(*configFile, engineType, hasMetadata)
+	rules, err := services.LoadRules(*configFile, engineType, hasMetadata)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading rules: %v\n", err)
 		os.Exit(1)
@@ -125,7 +125,7 @@ func main() {
 	}
 
 	// Output results
-	if err := internal.OutputResults(resp, statement, engineType, *outputFormat, dbParams); err != nil {
+	if err := services.OutputResults(resp, statement, engineType, *outputFormat, dbParams); err != nil {
 		fmt.Fprintf(os.Stderr, "Error outputting results: %v\n", err)
 		os.Exit(1)
 	}
@@ -165,8 +165,8 @@ func getStatement() (string, error) {
 }
 
 // buildDBParams builds database connection parameters from command line flags.
-func buildDBParams() *internal.DBConnectionParams {
-	return &internal.DBConnectionParams{
+func buildDBParams() *services.DBConnectionParams {
+	return &services.DBConnectionParams{
 		Host:        *dbHost,
 		Port:        *dbPort,
 		User:        *dbUser,
