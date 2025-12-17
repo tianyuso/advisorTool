@@ -206,9 +206,120 @@ cat schema.sql | ./advisor -engine mysql -sql -
 
 ### 作为 Go 库使用
 
-以下示例展示如何在 Go 项目中直接使用 SQL Advisor 库进行 PostgreSQL 的 SQL 审核。
+以下示例展示如何在 Go 项目中直接使用 SQL Advisor 库进行 SQL 审核。
 
-#### 基础用法（不连接数据库）
+> 💡 **提示**: 现在可以使用 `services` 包来简化常见操作，如加载默认规则、格式化输出等。
+
+#### Services 包功能概览
+
+`services` 包（位于 `advisorTool/services`）提供了便捷的辅助函数，可以被外部 Go 程序直接引用：
+
+| 功能 | 函数 | 说明 |
+|------|------|------|
+| 规则加载 | `LoadRules(configFile, engineType, hasMetadata)` | 从配置文件或获取默认规则 |
+| 规则获取 | `GetDefaultRules(engineType, hasMetadata)` | 获取指定数据库的默认规则 |
+| 配置生成 | `GenerateSampleConfig(engineType)` | 生成示例配置文件 |
+| 结果转换 | `ConvertToReviewResults(resp, sql, engine, affectedRows)` | 转换为 Inception 兼容格式 |
+| 结果输出 | `OutputResults(resp, sql, engine, format, dbParams)` | 格式化输出（JSON/表格） |
+| 元数据获取 | `FetchDatabaseMetadata(engineType, dbParams)` | 从数据库获取元数据 |
+| 影响行数 | `CalculateAffectedRowsForStatements(sql, engine, dbParams)` | 计算 SQL 影响行数 |
+| 规则列表 | `ListAvailableRules()` | 列出所有可用规则 |
+
+**使用 services 包的优势**:
+- ✅ 无需处理 internal 包限制（之前的 `cmd/advisor/internal` 不能被外部引用）
+- ✅ 开箱即用的默认规则集，针对各数据库优化
+- ✅ 统一的结果格式转换和输出
+- ✅ 简化数据库连接和元数据获取
+- ✅ 完整的文档和示例代码
+
+详细文档请参考：[services/README.md](services/README.md)
+
+#### 基础用法（使用 services 包）
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"advisorTool/pkg/advisor"
+	"advisorTool/services"
+)
+
+func main() {
+	// 1. 使用 services 包加载默认规则（推荐）
+	engineType := advisor.EngineMySQL
+	hasMetadata := false
+	
+	rules, err := services.LoadRules("", engineType, hasMetadata)
+	if err != nil {
+		log.Fatalf("加载规则失败: %v", err)
+	}
+	
+	fmt.Printf("✅ 成功加载 %d 条规则\n\n", len(rules))
+
+	// 2. 准备要审核的 SQL
+	sql := `
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+SELECT * FROM users WHERE id = 1;
+
+UPDATE users SET email = 'new@email.com';
+`
+
+	// 3. 创建审核请求
+	req := &advisor.ReviewRequest{
+		Engine:          engineType,
+		Statement:       sql,
+		CurrentDatabase: "testdb",
+		Rules:           rules,
+	}
+
+	// 4. 执行 SQL 审核
+	resp, err := advisor.SQLReviewCheck(context.Background(), req)
+	if err != nil {
+		log.Fatalf("SQL 审核失败: %v", err)
+	}
+
+	fmt.Printf("审核完成，发现 %d 个问题\n\n", len(resp.Advices))
+
+	// 5. 使用 services 包的 ConvertToReviewResults 转换结果
+	affectedRowsMap := make(map[int]int)
+	results := services.ConvertToReviewResults(resp, sql, engineType, affectedRowsMap)
+
+	// 6. 输出结果
+	fmt.Println("=== 审核结果 ===")
+	for _, result := range results {
+		level := "✓ OK"
+		if result.ErrorLevel == "1" {
+			level = "⚠ WARNING"
+		} else if result.ErrorLevel == "2" {
+			level = "✗ ERROR"
+		}
+
+		fmt.Printf("%d. [%s] %s\n", result.OrderID, level, result.SQL)
+		if result.ErrorMessage != "" {
+			fmt.Printf("   问题: %s\n", result.ErrorMessage)
+		}
+		fmt.Println()
+	}
+
+	// 7. 也可以使用 services.OutputResults 直接输出格式化结果
+	fmt.Println("\n=== 使用 services.OutputResults 输出（JSON 格式） ===")
+	if err := services.OutputResults(resp, sql, engineType, "json", nil); err != nil {
+		log.Printf("输出结果失败: %v", err)
+	}
+}
+```
+
+#### 手动配置规则（传统方式）
 
 ```go
 package main
@@ -222,9 +333,8 @@ import (
 )
 
 func main() {
-	// 1. 定义要审核的 SQL 语句
+	// 定义要审核的 SQL 语句
 	sql := `
--- 创建用户表
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50),
@@ -232,33 +342,28 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 查询用户（存在问题的 SQL）
 SELECT * FROM users;
 
--- 没有 WHERE 条件的更新（高危操作）
 UPDATE users SET status = 'active';
 `
 
-	// 2. 配置审核规则
+	// 手动配置审核规则
 	rules := []*advisor.SQLReviewRule{
 		// 错误级别：UPDATE/DELETE 必须有 WHERE 条件
 		advisor.NewRule(
 			string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete),
 			advisor.RuleLevelError,
 		),
-		
 		// 警告级别：禁止 SELECT *
 		advisor.NewRule(
 			string(advisor.SchemaRuleStatementNoSelectAll),
 			advisor.RuleLevelWarning,
 		),
-		
-		// 警告级别：表必须有主键
+		// 错误级别：表必须有主键
 		advisor.NewRule(
 			string(advisor.SchemaRuleTableRequirePK),
 			advisor.RuleLevelError,
 		),
-		
 		// 警告级别：禁止外键
 		advisor.NewRule(
 			string(advisor.SchemaRuleTableNoFK),
@@ -266,7 +371,7 @@ UPDATE users SET status = 'active';
 		),
 	}
 
-	// 3. 构建审核请求
+	// 构建审核请求
 	req := &advisor.ReviewRequest{
 		Engine:          advisor.EnginePostgres,
 		Statement:       sql,
@@ -274,18 +379,17 @@ UPDATE users SET status = 'active';
 		Rules:           rules,
 	}
 
-	// 4. 执行 SQL 审核
+	// 执行 SQL 审核
 	ctx := context.Background()
 	resp, err := advisor.SQLReviewCheck(ctx, req)
 	if err != nil {
 		log.Fatalf("SQL 审核失败: %v", err)
 	}
 
-	// 5. 输出审核结果
+	// 输出审核结果
 	fmt.Printf("审核完成，共发现 %d 个问题\n\n", len(resp.Advices))
 	
 	for i, advice := range resp.Advices {
-		// 根据状态设置颜色标记
 		statusStr := ""
 		switch advice.Status {
 		case advisor.AdviceStatusError:
@@ -304,7 +408,7 @@ UPDATE users SET status = 'active';
 		fmt.Println()
 	}
 
-	// 6. 根据审核结果决定是否允许执行
+	// 根据审核结果决定是否允许执行
 	if resp.HasError {
 		fmt.Println("❌ SQL 审核不通过，存在错误级别的问题，拒绝执行！")
 	} else if resp.HasWarning {
@@ -318,6 +422,99 @@ UPDATE users SET status = 'active';
 #### 高级用法（连接数据库获取元数据）
 
 连接数据库可以启用更多需要元数据的审核规则，如列 NULL 检查、向后兼容性检查等。
+
+**使用 services 包（推荐）**:
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"advisorTool/pkg/advisor"
+	"advisorTool/services"
+)
+
+func main() {
+	// 1. 配置数据库连接参数
+	dbParams := &services.DBConnectionParams{
+		Host:     "127.0.0.1",
+		Port:     5432,
+		User:     "postgres",
+		Password: "secret",
+		DbName:   "mydb",
+		SSLMode:  "disable",
+		Timeout:  10,
+	}
+
+	// 2. 使用 services 包获取数据库元数据
+	engineType := advisor.EnginePostgres
+	metadata, err := services.FetchDatabaseMetadata(engineType, dbParams)
+	if err != nil {
+		log.Printf("警告: 获取数据库元数据失败: %v", err)
+		log.Println("将跳过需要元数据的规则")
+		metadata = nil
+	} else {
+		fmt.Printf("✅ 成功获取数据库元数据，Schema 数量: %d\n\n", len(metadata.Schemas))
+	}
+
+	// 3. 加载规则（包括需要元数据的规则）
+	hasMetadata := (metadata != nil)
+	rules, err := services.LoadRules("", engineType, hasMetadata)
+	if err != nil {
+		log.Fatalf("加载规则失败: %v", err)
+	}
+
+	fmt.Printf("✅ 加载了 %d 条审核规则\n\n", len(rules))
+
+	// 4. 要审核的 SQL（修改现有表）
+	sql := `
+-- 添加新列
+ALTER TABLE mydata.users ADD COLUMN age INT NOT NULL;
+
+-- 修改列类型
+ALTER TABLE mydata.users ALTER COLUMN username TYPE VARCHAR(20);
+
+-- 删除列
+ALTER TABLE mydata.users DROP COLUMN email;
+`
+
+	// 5. 构建带元数据的审核请求
+	req := &advisor.ReviewRequest{
+		Engine:          engineType,
+		Statement:       sql,
+		CurrentDatabase: "mydb",
+		Rules:           rules,
+		DBSchema:        metadata, // 提供元数据
+	}
+
+	// 6. 执行审核
+	resp, err := advisor.SQLReviewCheck(context.Background(), req)
+	if err != nil {
+		log.Fatalf("SQL 审核失败: %v", err)
+	}
+
+	// 7. 使用 services 包输出格式化结果
+	fmt.Println("=== 审核结果（表格格式） ===")
+	if err := services.OutputResults(resp, sql, engineType, "table", dbParams); err != nil {
+		log.Printf("输出结果失败: %v", err)
+	}
+
+	// 8. 决策建议
+	fmt.Println("\n=== 决策建议 ===")
+	if resp.HasError {
+		fmt.Println("❌ 存在错误级别问题，强烈建议修复后再执行")
+	} else if resp.HasWarning {
+		fmt.Println("⚠️  存在警告级别问题，建议评估风险")
+	} else {
+		fmt.Println("✅ 审核通过，可以安全执行")
+	}
+}
+```
+
+**传统方式（直接使用 db 包）**:
 
 ```go
 package main
@@ -352,74 +549,41 @@ func main() {
 	}
 	defer conn.Close()
 
-	// 获取数据库 schema 元数据
 	metadata, err := db.GetDatabaseMetadata(ctx, conn, dbConfig)
 	if err != nil {
 		log.Fatalf("获取数据库元数据失败: %v", err)
 	}
 
-	// 3. 要审核的 SQL（修改现有表）
+	// 3. 要审核的 SQL
 	sql := `
--- 添加新列（不兼容：没有默认值的 NOT NULL 列）
 ALTER TABLE mydata.users ADD COLUMN age INT NOT NULL;
-
--- 修改列类型（可能不兼容）
 ALTER TABLE mydata.users ALTER COLUMN username TYPE VARCHAR(20);
-
--- 删除列（不兼容）
 ALTER TABLE mydata.users DROP COLUMN email;
 `
 
-	// 4. 配置更多审核规则（包括需要元数据的规则）
+	// 4. 配置审核规则
 	rules := []*advisor.SQLReviewRule{
-		// 基础规则
 		advisor.NewRule(
 			string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete),
 			advisor.RuleLevelError,
 		),
 		advisor.NewRule(
-			string(advisor.SchemaRuleStatementNoSelectAll),
-			advisor.RuleLevelWarning,
-		),
-		
-		// 需要元数据的规则
-		
-		// 列不能为 NULL（需要知道现有列定义）
-		advisor.NewRule(
 			string(advisor.SchemaRuleColumnNotNull),
 			advisor.RuleLevelWarning,
 		),
-		
-		// 向后兼容性检查（需要对比变更前后的 schema）
 		advisor.NewRule(
 			string(advisor.SchemaRuleSchemaBackwardCompatibility),
 			advisor.RuleLevelError,
 		),
-		
-		// 列需要默认值
-		advisor.NewRule(
-			string(advisor.SchemaRuleColumnRequireDefault),
-			advisor.RuleLevelWarning,
-		),
-		
-		// PostgreSQL 特定规则
-		advisor.NewRule(
-			string(advisor.SchemaRuleCreateIndexConcurrently),
-			advisor.RuleLevelError,
-		),
-		advisor.NewRule(
-			string(advisor.SchemaRuleStatementDisallowAddColumnWithDefault),
-			advisor.RuleLevelWarning,
-		),
 	}
 
-	// 5. 构建带元数据的审核请求
+	// 5. 构建审核请求
 	req := &advisor.ReviewRequest{
 		Engine:          advisor.EnginePostgres,
 		Statement:       sql,
 		CurrentDatabase: "mydb",
 		Rules:           rules,
-		DBSchema:        metadata, // 提供元数据
+		DBSchema:        metadata,
 	}
 
 	// 6. 执行审核
@@ -428,66 +592,10 @@ ALTER TABLE mydata.users DROP COLUMN email;
 		log.Fatalf("SQL 审核失败: %v", err)
 	}
 
-	// 7. 输出详细的审核结果
-	fmt.Printf("=== SQL 审核报告 ===\n")
-	fmt.Printf("数据库: %s@%s:%d/%s\n", dbConfig.User, dbConfig.Host, dbConfig.Port, dbConfig.DbName)
-	fmt.Printf("审核规则数: %d\n", len(rules))
-	fmt.Printf("发现问题数: %d\n\n", len(resp.Advices))
-
-	if len(resp.Advices) == 0 {
-		fmt.Println("✅ 未发现任何问题，SQL 完全符合规范！")
-		return
-	}
-
-	// 按严重程度分组显示
-	errors := []*advisor.Advice{}
-	warnings := []*advisor.Advice{}
-	
+	// 7. 输出结果
+	fmt.Printf("发现 %d 个问题\n", len(resp.Advices))
 	for _, advice := range resp.Advices {
-		switch advice.Status {
-		case advisor.AdviceStatusError:
-			errors = append(errors, advice)
-		case advisor.AdviceStatusWarning:
-			warnings = append(warnings, advice)
-		}
-	}
-
-	if len(errors) > 0 {
-		fmt.Printf("❌ 错误 (%d):\n", len(errors))
-		for i, advice := range errors {
-			fmt.Printf("  %d. [%s] %s\n", i+1, advice.Code, advice.Title)
-			fmt.Printf("     %s\n", advice.Content)
-			if advice.StartPosition != nil {
-				fmt.Printf("     位置: Line %d, Column %d\n", 
-					advice.StartPosition.Line, advice.StartPosition.Column)
-			}
-			fmt.Println()
-		}
-	}
-
-	if len(warnings) > 0 {
-		fmt.Printf("⚠️  警告 (%d):\n", len(warnings))
-		for i, advice := range warnings {
-			fmt.Printf("  %d. [%s] %s\n", i+1, advice.Code, advice.Title)
-			fmt.Printf("     %s\n", advice.Content)
-			if advice.StartPosition != nil {
-				fmt.Printf("     位置: Line %d, Column %d\n", 
-					advice.StartPosition.Line, advice.StartPosition.Column)
-			}
-			fmt.Println()
-		}
-	}
-
-	// 8. 决策建议
-	fmt.Println("\n=== 决策建议 ===")
-	if resp.HasError {
-		fmt.Println("❌ 存在错误级别问题，强烈建议修复后再执行")
-		fmt.Println("   这些问题可能导致：数据丢失、服务中断、向后不兼容等严重后果")
-	} else if resp.HasWarning {
-		fmt.Println("⚠️  存在警告级别问题，建议评估风险")
-		fmt.Println("   这些问题可能影响：性能、可维护性、最佳实践等")
-	} else {
-		fmt.Println("✅ 审核通过，可以安全执行")
+		fmt.Printf("- [%s] %s\n", advice.Title, advice.Content)
 	}
 }
 ```
@@ -728,11 +836,16 @@ import (
 	"path/filepath"
 
 	"advisorTool/pkg/advisor"
+	"advisorTool/services"
 )
 
 func main() {
-	// 1. 定义审核规则（可以从配置文件加载）
-	rules := getDefaultPostgresRules()
+	// 1. 使用 services 包加载规则
+	engineType := advisor.EnginePostgres
+	rules, err := services.LoadRules("", engineType, false)
+	if err != nil {
+		log.Fatalf("加载规则失败: %v", err)
+	}
 
 	// 2. 扫描 SQL 文件目录
 	sqlDir := "./migrations"
@@ -759,7 +872,7 @@ func main() {
 
 		// 执行审核
 		req := &advisor.ReviewRequest{
-			Engine:          advisor.EnginePostgres,
+			Engine:          engineType,
 			Statement:       string(content),
 			CurrentDatabase: "mydb",
 			Rules:           rules,
@@ -806,16 +919,6 @@ func main() {
 		fmt.Println("\n✅ 所有 SQL 文件审核通过！")
 	}
 }
-
-func getDefaultPostgresRules() []*advisor.SQLReviewRule {
-	return []*advisor.SQLReviewRule{
-		advisor.NewRule(string(advisor.SchemaRuleStatementNoSelectAll), advisor.RuleLevelWarning),
-		advisor.NewRule(string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete), advisor.RuleLevelError),
-		advisor.NewRule(string(advisor.SchemaRuleTableRequirePK), advisor.RuleLevelError),
-		advisor.NewRule(string(advisor.SchemaRuleTableNoFK), advisor.RuleLevelWarning),
-		advisor.NewRule(string(advisor.SchemaRuleCreateIndexConcurrently), advisor.RuleLevelError),
-	}
-}
 ```
 
 #### 集成到 CI/CD 流程
@@ -830,26 +933,47 @@ import (
 	"os"
 
 	"advisorTool/pkg/advisor"
+	"advisorTool/services"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("用法: ci_check <sql-file>")
+	if len(os.Args) < 3 {
+		fmt.Println("用法: ci_check <engine> <sql-file> [config-file]")
+		fmt.Println("示例: ci_check mysql migration.sql strict-review.yaml")
 		os.Exit(1)
 	}
 
-	sqlFile := os.Args[1]
+	engineStr := os.Args[1]
+	sqlFile := os.Args[2]
+	configFile := ""
+	if len(os.Args) > 3 {
+		configFile = os.Args[3]
+	}
+
+	// 读取 SQL 文件
 	content, err := os.ReadFile(sqlFile)
 	if err != nil {
 		fmt.Printf("❌ 读取文件失败: %v\n", err)
 		os.Exit(1)
 	}
 
-	// 使用严格的审核规则
-	rules := getStrictRules()
+	// 解析数据库引擎类型
+	engineType := advisor.EngineFromString(engineStr)
+	if engineType == 0 {
+		fmt.Printf("❌ 不支持的数据库引擎: %s\n", engineStr)
+		os.Exit(1)
+	}
 
+	// 使用 services 包加载规则
+	rules, err := services.LoadRules(configFile, engineType, false)
+	if err != nil {
+		fmt.Printf("❌ 加载规则失败: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 执行审核
 	req := &advisor.ReviewRequest{
-		Engine:          advisor.EnginePostgres,
+		Engine:          engineType,
 		Statement:       string(content),
 		CurrentDatabase: os.Getenv("DB_NAME"),
 		Rules:           rules,
@@ -884,17 +1008,80 @@ func main() {
 		os.Exit(2)
 	}
 
+	if resp.HasWarning {
+		fmt.Printf("\n⚠️  SQL 审核发现 %d 个警告\n", len(resp.Advices))
+		os.Exit(1)
+	}
+
 	fmt.Printf("✅ SQL 审核通过\n")
 }
+```
 
-func getStrictRules() []*advisor.SQLReviewRule {
-	// 返回最严格的规则集合
-	return []*advisor.SQLReviewRule{
-		advisor.NewRule(string(advisor.SchemaRuleStatementRequireWhereForUpdateDelete), advisor.RuleLevelError),
-		advisor.NewRule(string(advisor.SchemaRuleTableRequirePK), advisor.RuleLevelError),
-		advisor.NewRule(string(advisor.SchemaRuleSchemaBackwardCompatibility), advisor.RuleLevelError),
-		advisor.NewRule(string(advisor.SchemaRuleCreateIndexConcurrently), advisor.RuleLevelError),
+#### 从配置文件加载规则
+
+使用 `services` 包可以轻松从 YAML 或 JSON 配置文件加载规则：
+
+```go
+package main
+
+import (
+	"context"
+	"log"
+
+	"advisorTool/pkg/advisor"
+	"advisorTool/services"
+)
+
+func main() {
+	// 从配置文件加载规则
+	rules, err := services.LoadRules("mysql-review-config.yaml", advisor.EngineMySQL, false)
+	if err != nil {
+		log.Fatalf("加载配置失败: %v", err)
 	}
+
+	// 如果不提供配置文件路径，将使用默认规则
+	// rules, err := services.LoadRules("", advisor.EngineMySQL, false)
+
+	sql := "SELECT * FROM users WHERE id = 1"
+	
+	req := &advisor.ReviewRequest{
+		Engine:          advisor.EngineMySQL,
+		Statement:       sql,
+		CurrentDatabase: "mydb",
+		Rules:           rules,
+	}
+
+	resp, err := advisor.SQLReviewCheck(context.Background(), req)
+	if err != nil {
+		log.Fatalf("审核失败: %v", err)
+	}
+
+	// 使用 services 包输出结果
+	services.OutputResults(resp, sql, advisor.EngineMySQL, "table", nil)
+}
+```
+
+#### 生成示例配置文件
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"advisorTool/pkg/advisor"
+	"advisorTool/services"
+)
+
+func main() {
+	// 为不同数据库生成示例配置
+	mysqlConfig := services.GenerateSampleConfig(advisor.EngineMySQL)
+	fmt.Println("=== MySQL 示例配置 ===")
+	fmt.Println(mysqlConfig)
+	
+	pgConfig := services.GenerateSampleConfig(advisor.EnginePostgres)
+	fmt.Println("\n=== PostgreSQL 示例配置 ===")
+	fmt.Println(pgConfig)
 }
 ```
 
@@ -1248,13 +1435,28 @@ advisorTool/
 │   └── oceanbase/                    # OceanBase 规则实现
 ├── cmd/
 │   └── advisor/
-│       └── main.go                   # 命令行入口（750 行）
+│       └── main.go                   # 命令行入口（190 行）
 │           ├── 参数解析
 │           ├── SQL 输入处理
 │           ├── 规则配置加载
 │           ├── 数据库元数据获取
 │           ├── 审核执行
 │           └── 结果输出（支持多种格式）
+├── services/                        # 公共服务包（可被外部引用）
+│   ├── config.go                     # 规则配置加载（340 行）
+│   │   ├── LoadRules()               # 加载规则
+│   │   ├── GetDefaultRules()         # 获取默认规则
+│   │   └── GenerateSampleConfig()    # 生成示例配置
+│   ├── output.go                     # 结果输出（275 行）
+│   │   ├── OutputResults()           # 格式化输出
+│   │   └── ListAvailableRules()      # 列出可用规则
+│   ├── result.go                     # 结果处理（253 行）
+│   │   ├── ConvertToReviewResults()  # 转换结果格式
+│   │   ├── CalculateAffectedRows()   # 计算影响行数
+│   │   └── DBConnectionParams        # 连接参数结构
+│   ├── metadata.go                   # 元数据获取（49 行）
+│   │   └── FetchDatabaseMetadata()   # 获取数据库元数据
+│   └── README.md                     # Services 包文档
 ├── pkg/
 │   └── advisor/
 │       ├── advisor.go                # 封装层 API（247 行）
@@ -1272,7 +1474,9 @@ advisorTool/
 │   ├── mysql-review-config.yaml      # MySQL 完整配置（245 行）
 │   ├── postgres-review-config.yaml   # PostgreSQL 配置
 │   ├── basic-config.yaml             # 基础配置（无需元数据）
-│   └── test.sql                      # 测试 SQL
+│   ├── test.sql                      # 测试 SQL
+│   ├── postgres_library_example.go   # PostgreSQL 库使用示例
+│   └── external_usage_example.go     # 外部程序使用示例
 ├── build/
 │   └── advisor                       # 编译输出
 ├── go.mod                            # Go 模块（含 replace 指令）
