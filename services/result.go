@@ -37,6 +37,7 @@ type DBConnectionParams struct {
 	Sid         string
 	SSLMode     string
 	Timeout     int
+	Schema      string
 }
 
 // CalculateAffectedRowsForStatements calculates affected rows for all SQL statements.
@@ -63,6 +64,7 @@ func CalculateAffectedRowsForStatements(statement string, engineType advisor.Eng
 		Sid:         dbParams.Sid,
 		SSLMode:     dbParams.SSLMode,
 		Timeout:     dbParams.Timeout,
+		Schema:      dbParams.Schema,
 	}
 
 	dbConn, err := db.OpenConnection(context.Background(), config)

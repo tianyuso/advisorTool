@@ -27,6 +27,7 @@ func FetchDatabaseMetadata(engineType advisor.Engine, dbParams *DBConnectionPara
 		Sid:         dbParams.Sid,
 		SSLMode:     dbParams.SSLMode,
 		Timeout:     dbParams.Timeout,
+		Schema:      dbParams.Schema,
 	}
 
 	ctx := context.Background()
