@@ -11,10 +11,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"advisorTool/common/log"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/common/log"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 const (

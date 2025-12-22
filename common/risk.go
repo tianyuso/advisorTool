@@ -2,7 +2,7 @@
 package common
 
 import (
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // High risk statement types - destructive, irreversible operations.

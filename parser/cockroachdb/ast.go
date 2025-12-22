@@ -4,8 +4,8 @@ import (
 	"github.com/cockroachdb/cockroachdb-parser/pkg/sql/parser/statements"
 	"github.com/cockroachdb/cockroachdb-parser/pkg/sql/sem/tree"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // AST is the AST implementation for CockroachDB parser.

@@ -8,9 +8,9 @@ import (
 	parser "github.com/bytebase/parser/snowflake"
 	"github.com/pkg/errors"
 
-	parsererror "advisorTool/parser/errors"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type querySpanExtractor struct {

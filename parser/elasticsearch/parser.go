@@ -11,8 +11,8 @@ import (
 	hjson "github.com/hjson/hjson-go/v4"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type ParseResult struct {

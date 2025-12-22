@@ -7,15 +7,15 @@ import (
 
 	"github.com/pkg/errors"
 
-	"advisorTool/common"
-	"advisorTool/component/sheet"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/common"
+	"github.com/tianyuso/advisorTool/component/sheet"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/schema"
 
 	// Register walk-through implementations
-	_ "advisorTool/schema/mysql"
-	_ "advisorTool/schema/pg"
-	_ "advisorTool/schema/tidb"
+	_ "github.com/tianyuso/advisorTool/schema/mysql"
+	_ "github.com/tianyuso/advisorTool/schema/pg"
+	_ "github.com/tianyuso/advisorTool/schema/tidb"
 )
 
 // How to add a SQL review rule:

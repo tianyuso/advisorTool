@@ -3,7 +3,7 @@ package tidb
 import (
 	tidbast "github.com/pingcap/tidb/pkg/parser/ast"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func getQueryType(node tidbast.Node, allSystem bool) (base.QueryType, bool) {

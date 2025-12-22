@@ -1,7 +1,7 @@
 package pg
 
 import (
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // processFunctionChanges analyzes function changes between current and previous chunks

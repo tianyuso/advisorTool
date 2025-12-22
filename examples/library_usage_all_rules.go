@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"os"
 
-	"advisorTool/db"
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/db"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 var (

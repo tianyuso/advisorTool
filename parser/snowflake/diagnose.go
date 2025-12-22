@@ -8,8 +8,8 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/snowflake"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func init() {

@@ -7,19 +7,19 @@ import (
 
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	"advisorTool/component/sheet"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/component/sheet"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/store/model"
 
 	// Import all advisors to register them
-	_ "advisorTool/advisor/mssql"
-	_ "advisorTool/advisor/mysql"
-	_ "advisorTool/advisor/oceanbase"
-	_ "advisorTool/advisor/oracle"
-	_ "advisorTool/advisor/pg"
-	_ "advisorTool/advisor/snowflake"
-	_ "advisorTool/advisor/tidb"
+	_ "github.com/tianyuso/advisorTool/advisor/mssql"
+	_ "github.com/tianyuso/advisorTool/advisor/mysql"
+	_ "github.com/tianyuso/advisorTool/advisor/oceanbase"
+	_ "github.com/tianyuso/advisorTool/advisor/oracle"
+	_ "github.com/tianyuso/advisorTool/advisor/pg"
+	_ "github.com/tianyuso/advisorTool/advisor/snowflake"
+	_ "github.com/tianyuso/advisorTool/advisor/tidb"
 )
 
 // Engine represents the database engine type.

@@ -4,7 +4,7 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // validateQueryANTLR validates the SQL statement for SQL editor using ANTLR parser.

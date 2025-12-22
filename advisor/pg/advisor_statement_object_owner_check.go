@@ -9,12 +9,12 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/advisor"
-	"advisorTool/advisor/code"
-	"advisorTool/common/log"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/pg"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/common/log"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 var (

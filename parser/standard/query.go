@@ -5,10 +5,10 @@ import (
 	"regexp"
 	"strings"
 
-	"advisorTool/common/log"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/parser/tokenizer"
+	"github.com/tianyuso/advisorTool/common/log"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/tokenizer"
 )
 
 func init() {

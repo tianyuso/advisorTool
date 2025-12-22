@@ -8,8 +8,8 @@ import (
 	"io"
 	"os"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 var (
@@ -33,6 +33,7 @@ var (
 	dbSid         = flag.String("sid", "", "Oracle SID")
 	dbSSLMode     = flag.String("sslmode", "disable", "PostgreSQL SSL mode")
 	dbTimeout     = flag.Int("timeout", 5, "Database connection timeout in seconds")
+	dbSchema      = flag.String("schema", "", "Database schema")
 )
 
 const toolVersion = "1.0.0"
@@ -177,6 +178,7 @@ func buildDBParams() *services.DBConnectionParams {
 		Sid:         *dbSid,
 		SSLMode:     *dbSSLMode,
 		Timeout:     *dbTimeout,
+		Schema:      *dbSchema,
 	}
 }
 

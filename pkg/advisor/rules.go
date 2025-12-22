@@ -2,7 +2,7 @@
 package advisor
 
 import (
-	"advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/advisor"
 )
 
 // Rule types - re-exported from Bytebase advisor package.

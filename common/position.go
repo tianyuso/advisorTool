@@ -2,7 +2,7 @@
 package common
 
 import (
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // ANTLRPosition is a position in a text expressed as one-based line and

@@ -16,18 +16,19 @@ import (
 
 // ConnectionConfig holds database connection configuration.
 type ConnectionConfig struct {
-	DbType      string // mysql, postgres, mssql, oracle
-	Host        string
-	Port        int
-	User        string
-	Password    string
-	DbName      string
-	Charset     string
-	ServiceName string // For Oracle
-	Sid         string // For Oracle
-	SSLMode     string // For PostgreSQL
-	Timeout     int    // Connection timeout in seconds
-	Schema      string // For PostgreSQL
+	DbType        string // mysql, postgres, mssql, oracle
+	Host          string
+	Port          int
+	User          string
+	Password      string
+	DbName        string
+	Charset       string
+	ServiceName   string // For Oracle
+	Sid           string // For Oracle
+	SSLMode       string // For PostgreSQL
+	Timeout       int    // Connection timeout in seconds
+	Schema        string // For PostgreSQL
+	SetSearchPath bool   // For PostgreSQL: whether to set search_path (only for affected rows calculation)
 }
 
 // OpenConnection opens a database connection based on the configuration.
@@ -60,14 +61,14 @@ func OpenConnection(ctx context.Context, config *ConnectionConfig) (*sql.DB, err
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	// For PostgreSQL, set search_path if Schema is specified
-	if config.DbType == "postgres" && config.Schema != "" {
-		searchPathSQL := fmt.Sprintf("SET search_path TO %s, public", config.Schema)
-		if _, err := db.ExecContext(ctx, searchPathSQL); err != nil {
-			db.Close()
-			return nil, fmt.Errorf("failed to set search_path: %w", err)
-		}
-	}
+	// // For PostgreSQL, set search_path if Schema is specified and SetSearchPath is true
+	// if config.DbType == "postgres" && config.Schema != "" && config.SetSearchPath {
+	// 	searchPathSQL := fmt.Sprintf("SET search_path TO %s, public", config.Schema)
+	// 	if _, err := db.ExecContext(ctx, searchPathSQL); err != nil {
+	// 		db.Close()
+	// 		return nil, fmt.Errorf("failed to set search_path: %w", err)
+	// 	}
+	// }
 
 	return db, nil
 }

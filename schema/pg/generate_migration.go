@@ -10,11 +10,11 @@ import (
 	pgparser "github.com/bytebase/parser/postgresql"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	pgpluginparser "advisorTool/parser/pg"
-	"advisorTool/schema"
-	"advisorTool/schema/pg/ast"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	pgpluginparser "github.com/tianyuso/advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/schema"
+	"github.com/tianyuso/advisorTool/schema/pg/ast"
 )
 
 func init() {

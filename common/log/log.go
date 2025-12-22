@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"advisorTool/common/stacktrace"
+	"github.com/tianyuso/advisorTool/common/stacktrace"
 )
 
 // LogLevel is the default log severity level.

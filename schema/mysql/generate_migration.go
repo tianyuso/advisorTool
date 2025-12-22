@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	storepb "advisorTool/generated-go/store"
-	parserbase "advisorTool/parser/base"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	parserbase "github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // tableDrop holds drop operations for deduplication

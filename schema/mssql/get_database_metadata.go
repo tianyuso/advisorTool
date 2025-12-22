@@ -11,9 +11,9 @@ import (
 
 	parser "github.com/bytebase/parser/tsql"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/tsql"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/tsql"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 func init() {

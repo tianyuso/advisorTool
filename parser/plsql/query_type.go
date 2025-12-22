@@ -3,7 +3,7 @@ package plsql
 import (
 	"github.com/bytebase/parser/plsql"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

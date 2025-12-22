@@ -9,13 +9,13 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	parsererror "advisorTool/parser/errors"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
 
 	"github.com/bytebase/parser/postgresql"
 
-	"advisorTool/parser/base"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 const (

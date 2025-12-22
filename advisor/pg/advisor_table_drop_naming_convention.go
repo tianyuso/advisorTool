@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"regexp"
 
-	"advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/advisor/code"
 
 	"github.com/antlr4-go/antlr/v4"
 
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/advisor"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/advisor"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/pg"
 )
 
 var (

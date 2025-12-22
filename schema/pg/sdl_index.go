@@ -5,8 +5,8 @@ import (
 
 	parser "github.com/bytebase/parser/postgresql"
 
-	pgparser "advisorTool/parser/pg"
-	"advisorTool/schema"
+	pgparser "github.com/tianyuso/advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // processStandaloneIndexChanges analyzes standalone CREATE INDEX statement changes

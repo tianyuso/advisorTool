@@ -3,8 +3,8 @@ package pg
 import (
 	parser "github.com/bytebase/parser/postgresql"
 
-	pgparser "advisorTool/parser/pg"
-	"advisorTool/schema"
+	pgparser "github.com/tianyuso/advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // ForeignKeyDefWithAST holds foreign key constraint definition with its AST node for text comparison

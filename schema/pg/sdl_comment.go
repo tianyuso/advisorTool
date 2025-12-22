@@ -5,7 +5,7 @@ import (
 
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // processCommentChanges processes COMMENT ON statement changes between current and previous chunks

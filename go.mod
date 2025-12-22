@@ -1,4 +1,4 @@
-module advisorTool
+module github.com/tianyuso/advisorTool
 
 go 1.24.5
 

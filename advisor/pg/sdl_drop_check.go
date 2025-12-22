@@ -3,9 +3,9 @@ package pg
 import (
 	"fmt"
 
-	"advisorTool/advisor/code"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/advisor/code"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // CheckSDLDropOperations analyzes MetadataDiff for DROP and ALTER operations

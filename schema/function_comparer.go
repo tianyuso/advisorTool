@@ -3,7 +3,7 @@ package schema
 import (
 	"sync"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // FunctionChange represents a type of change detected in a function.

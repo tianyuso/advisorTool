@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"log"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {

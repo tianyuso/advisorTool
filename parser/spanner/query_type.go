@@ -4,7 +4,7 @@ import (
 	parser "github.com/bytebase/parser/googlesql"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

@@ -8,7 +8,7 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/plsql"
 
-	"advisorTool/common/log"
+	"github.com/tianyuso/advisorTool/common/log"
 )
 
 type EraseContext struct {

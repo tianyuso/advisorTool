@@ -8,10 +8,10 @@ import (
 	parser "github.com/bytebase/parser/trino"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	parsererror "advisorTool/parser/errors"
-	"advisorTool/store/model"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 // querySpanExtractor extracts query spans from Trino statements.

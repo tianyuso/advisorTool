@@ -9,9 +9,9 @@ import (
 	parser "github.com/bytebase/parser/postgresql"
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	"advisorTool/parser/base"
-	"advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/pg"
 )
 
 // isTopLevel checks if the context is at the top level of the parse tree.

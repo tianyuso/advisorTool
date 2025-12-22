@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 type databaseState struct {

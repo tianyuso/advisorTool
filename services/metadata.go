@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"advisorTool/db"
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/db"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 // FetchDatabaseMetadata fetches database schema metadata from the connected database.
@@ -16,18 +16,19 @@ func FetchDatabaseMetadata(engineType advisor.Engine, dbParams *DBConnectionPara
 
 	// Build connection config
 	config := &db.ConnectionConfig{
-		DbType:      GetDbTypeString(engineType),
-		Host:        dbParams.Host,
-		Port:        dbParams.Port,
-		User:        dbParams.User,
-		Password:    dbParams.Password,
-		DbName:      dbParams.DbName,
-		Charset:     dbParams.Charset,
-		ServiceName: dbParams.ServiceName,
-		Sid:         dbParams.Sid,
-		SSLMode:     dbParams.SSLMode,
-		Timeout:     dbParams.Timeout,
-		Schema:      dbParams.Schema,
+		DbType:        GetDbTypeString(engineType),
+		Host:          dbParams.Host,
+		Port:          dbParams.Port,
+		User:          dbParams.User,
+		Password:      dbParams.Password,
+		DbName:        dbParams.DbName,
+		Charset:       dbParams.Charset,
+		ServiceName:   dbParams.ServiceName,
+		Sid:           dbParams.Sid,
+		SSLMode:       dbParams.SSLMode,
+		Timeout:       dbParams.Timeout,
+		Schema:        dbParams.Schema,
+		SetSearchPath: false, // 获取元数据时不设置 search_path，避免影响审核
 	}
 
 	ctx := context.Background()

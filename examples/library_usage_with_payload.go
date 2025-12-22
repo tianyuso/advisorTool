@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 func main() {
@@ -211,3 +211,4 @@ func getStatusIcon(status advisor.AdviceStatus) string {
 		return "ℹ️"
 	}
 }
+

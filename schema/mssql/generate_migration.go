@@ -10,11 +10,11 @@ import (
 	parser "github.com/bytebase/parser/tsql"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/parser/tsql"
-	"advisorTool/schema"
-	"advisorTool/store/model"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/tsql"
+	"github.com/tianyuso/advisorTool/schema"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 func init() {

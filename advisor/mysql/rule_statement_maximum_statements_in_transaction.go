@@ -6,8 +6,8 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/bytebase/parser/mysql"
 
-	"advisorTool/advisor"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/advisor"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 var (

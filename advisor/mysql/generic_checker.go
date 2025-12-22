@@ -8,7 +8,7 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/bytebase/parser/mysql"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // Node type constants for consistent node type checking

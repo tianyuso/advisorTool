@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	"advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/advisor/code"
 
 	"github.com/antlr4-go/antlr/v4"
 
 	"github.com/bytebase/parser/mysql"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	mysqlparser "advisorTool/parser/mysql"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	mysqlparser "github.com/tianyuso/advisorTool/parser/mysql"
 
-	"advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/advisor"
 )
 
 func init() {

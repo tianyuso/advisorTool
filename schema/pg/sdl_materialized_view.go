@@ -1,7 +1,7 @@
 package pg
 
 import (
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // processMaterializedViewChanges analyzes materialized view changes between current and previous chunks

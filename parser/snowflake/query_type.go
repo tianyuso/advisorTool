@@ -3,7 +3,7 @@ package snowflake
 import (
 	parser "github.com/bytebase/parser/snowflake"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

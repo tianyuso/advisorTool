@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"regexp"
 
-	"advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/advisor/code"
 
 	"github.com/pingcap/tidb/pkg/parser/ast"
 
-	"advisorTool/advisor"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 var (

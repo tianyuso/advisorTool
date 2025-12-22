@@ -7,7 +7,7 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/bytebase/parser/cql"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // querySpanExtractor walks the CQL parse tree to extract query span information

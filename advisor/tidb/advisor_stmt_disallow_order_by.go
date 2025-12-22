@@ -8,10 +8,10 @@ import (
 
 	"github.com/pingcap/tidb/pkg/parser/ast"
 
-	"advisorTool/advisor"
-	advisorcode "advisorTool/advisor/code"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/advisor"
+	advisorcode "github.com/tianyuso/advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 var (

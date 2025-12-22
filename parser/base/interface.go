@@ -12,9 +12,9 @@ import (
 
 	lsp "github.com/bytebase/lsp-protocol"
 
-	storepb "advisorTool/generated-go/store"
-	parsererror "advisorTool/parser/errors"
-	"advisorTool/store/model"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 var (

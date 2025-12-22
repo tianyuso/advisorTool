@@ -11,8 +11,8 @@ import (
 	"github.com/pingcap/tidb/pkg/parser/types"
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	tidbparser "advisorTool/parser/tidb"
+	"github.com/tianyuso/advisorTool/advisor"
+	tidbparser "github.com/tianyuso/advisorTool/parser/tidb"
 )
 
 type columnSet map[string]bool

@@ -5,15 +5,15 @@ import (
 	"context"
 	"fmt"
 
-	"advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/advisor/code"
 
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/plsql"
 
-	"advisorTool/advisor"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	plsqlparser "advisorTool/parser/plsql"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	plsqlparser "github.com/tianyuso/advisorTool/parser/plsql"
 )
 
 var (

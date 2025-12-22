@@ -11,13 +11,13 @@ import (
 	"github.com/pingcap/tidb/pkg/types"
 	"google.golang.org/protobuf/proto"
 
-	"advisorTool/advisor/code"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	mysqlparser "advisorTool/parser/mysql"
-	"advisorTool/parser/tidb"
-	"advisorTool/schema"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/advisor/code"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	mysqlparser "github.com/tianyuso/advisorTool/parser/mysql"
+	"github.com/tianyuso/advisorTool/parser/tidb"
+	"github.com/tianyuso/advisorTool/schema"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 const (

@@ -3,7 +3,7 @@ package base
 import (
 	"github.com/antlr4-go/antlr/v4"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // AST is the interface that all parser AST types must implement.

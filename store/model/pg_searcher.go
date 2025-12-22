@@ -3,7 +3,7 @@ package model
 import (
 	"strings"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // DatabaseSearcher provides a fluent interface for searching database objects with a specific search path.

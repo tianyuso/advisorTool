@@ -7,7 +7,7 @@ import (
 	"github.com/bytebase/parser/postgresql"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // ExtractAccessTablesOption configures access table extraction behavior.

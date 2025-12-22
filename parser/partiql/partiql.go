@@ -7,9 +7,9 @@ import (
 
 	parser "github.com/bytebase/parser/partiql"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/utils"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/utils"
 )
 
 func init() {

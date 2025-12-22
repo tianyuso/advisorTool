@@ -1,6 +1,6 @@
 package advisor
 
-import storepb "advisorTool/generated-go/store"
+import storepb "github.com/tianyuso/advisorTool/generated-go/store"
 
 const (
 	BuiltinRulePriorBackupCheck SQLReviewRuleType = "builtin.prior-backup-check"

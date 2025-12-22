@@ -3,7 +3,7 @@ package model
 import (
 	"slices"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 type ChangedResources struct {

@@ -7,7 +7,7 @@ import (
 
 	pgparser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

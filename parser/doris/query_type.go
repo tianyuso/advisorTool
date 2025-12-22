@@ -3,7 +3,7 @@ package doris
 import (
 	parser "github.com/bytebase/parser/doris"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

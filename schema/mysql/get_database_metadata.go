@@ -10,9 +10,9 @@ import (
 	"github.com/bytebase/parser/mysql"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	mysqlparser "advisorTool/parser/mysql"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	mysqlparser "github.com/tianyuso/advisorTool/parser/mysql"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 func init() {

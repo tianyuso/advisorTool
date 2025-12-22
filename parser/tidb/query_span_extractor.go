@@ -8,10 +8,10 @@ import (
 	tidbast "github.com/pingcap/tidb/pkg/parser/ast"
 	"github.com/pkg/errors"
 
-	parsererror "advisorTool/parser/errors"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
 
-	"advisorTool/parser/base"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 type querySpanExtractor struct {

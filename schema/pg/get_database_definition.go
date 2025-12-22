@@ -11,11 +11,11 @@ import (
 
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	parserbase "advisorTool/parser/base"
-	pgparser "advisorTool/parser/pg"
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	parserbase "github.com/tianyuso/advisorTool/parser/base"
+	pgparser "github.com/tianyuso/advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 const (

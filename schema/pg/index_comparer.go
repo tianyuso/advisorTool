@@ -6,8 +6,8 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	pgparser "github.com/bytebase/parser/postgresql"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 func init() {

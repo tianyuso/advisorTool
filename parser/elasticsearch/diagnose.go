@@ -3,8 +3,8 @@ package elasticsearch
 import (
 	"context"
 
-	"advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func init() {

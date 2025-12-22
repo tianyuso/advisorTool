@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // DatabaseMetadata is the unified database schema including metadata, config, and raw dump.

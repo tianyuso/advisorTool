@@ -7,9 +7,9 @@ import (
 
 	parser "github.com/bytebase/parser/googlesql"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/utils"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/utils"
 )
 
 // ParseSpannerGoogleSQL parses the given SQL and returns a list of ParseResult (one per statement).

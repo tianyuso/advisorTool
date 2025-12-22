@@ -3,13 +3,13 @@ package pg
 import (
 	"fmt"
 
-	"advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/advisor/code"
 
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/postgresql"
 
-	storepb "advisorTool/generated-go/store"
-	pgparser "advisorTool/parser/pg"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	pgparser "github.com/tianyuso/advisorTool/parser/pg"
 )
 
 // CheckSDLStyle performs SDL style/convention checks on PostgreSQL declarative schema files.

@@ -7,7 +7,7 @@ import (
 	parser "github.com/bytebase/parser/plsql"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type StringsManipulator struct {

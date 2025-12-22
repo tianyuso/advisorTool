@@ -3,8 +3,8 @@ package snowflake
 import (
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // getANTLRTree extracts the ANTLR parse trees from the advisor context.

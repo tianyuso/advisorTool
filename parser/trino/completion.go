@@ -10,8 +10,8 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	trinoparser "github.com/bytebase/parser/trino"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func init() {

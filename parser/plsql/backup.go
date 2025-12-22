@@ -11,9 +11,9 @@ import (
 
 	parser "github.com/bytebase/parser/plsql"
 
-	"advisorTool/common"
-	"advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/common"
+	"github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 const (

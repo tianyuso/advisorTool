@@ -11,13 +11,13 @@ import (
 
 	"github.com/bytebase/parser/mysql"
 
-	"advisorTool/advisor"
-	"advisorTool/advisor/code"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	mysqlparser "advisorTool/parser/mysql"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	mysqlparser "github.com/tianyuso/advisorTool/parser/mysql"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 var (

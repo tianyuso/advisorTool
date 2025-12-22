@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 // ReviewConfig represents a review configuration file.

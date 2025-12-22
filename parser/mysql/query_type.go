@@ -3,7 +3,7 @@ package mysql
 import (
 	"github.com/bytebase/parser/mysql"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

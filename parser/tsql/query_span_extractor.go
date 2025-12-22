@@ -11,11 +11,11 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/tsql"
 
-	parsererror "advisorTool/parser/errors"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
 
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type querySpanExtractor struct {

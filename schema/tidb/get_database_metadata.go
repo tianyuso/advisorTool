@@ -15,8 +15,8 @@ import (
 	// Register pingcap parser driver.
 	_ "github.com/pingcap/tidb/pkg/types/parser_driver"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 func init() {

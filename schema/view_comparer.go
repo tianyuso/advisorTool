@@ -1,7 +1,7 @@
 package schema
 
 import (
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // ViewChangeType represents the type of change detected in a view.

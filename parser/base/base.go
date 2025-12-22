@@ -5,8 +5,8 @@ import (
 
 	"github.com/antlr4-go/antlr/v4"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // SingleSQL is a separate SQL split from multi-SQL.

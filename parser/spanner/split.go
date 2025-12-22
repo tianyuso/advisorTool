@@ -5,9 +5,9 @@ import (
 	parser "github.com/bytebase/parser/googlesql"
 	"github.com/pkg/errors"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func init() {

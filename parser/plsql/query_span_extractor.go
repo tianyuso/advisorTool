@@ -10,10 +10,10 @@ import (
 
 	parser "github.com/bytebase/parser/plsql"
 
-	parsererror "advisorTool/parser/errors"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
 
-	"advisorTool/parser/base"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 type querySpanExtractor struct {

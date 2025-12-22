@@ -3,7 +3,7 @@ package tsql
 import (
 	parser "github.com/bytebase/parser/tsql"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type queryTypeListener struct {

@@ -10,21 +10,21 @@ import (
 	lru "github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/zeebo/xxh3"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	tsqlbatch "advisorTool/parser/tsql/batch"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	tsqlbatch "github.com/tianyuso/advisorTool/parser/tsql/batch"
 
 	// Import parsers to register their parse functions.
-	_ "advisorTool/parser/cockroachdb"
-	_ "advisorTool/parser/doris"
-	_ "advisorTool/parser/mysql"
-	_ "advisorTool/parser/partiql"
-	_ "advisorTool/parser/plsql"
-	_ "advisorTool/parser/redshift"
-	_ "advisorTool/parser/snowflake"
-	_ "advisorTool/parser/tidb"
-	_ "advisorTool/parser/tsql"
+	_ "github.com/tianyuso/advisorTool/parser/cockroachdb"
+	_ "github.com/tianyuso/advisorTool/parser/doris"
+	_ "github.com/tianyuso/advisorTool/parser/mysql"
+	_ "github.com/tianyuso/advisorTool/parser/partiql"
+	_ "github.com/tianyuso/advisorTool/parser/plsql"
+	_ "github.com/tianyuso/advisorTool/parser/redshift"
+	_ "github.com/tianyuso/advisorTool/parser/snowflake"
+	_ "github.com/tianyuso/advisorTool/parser/tidb"
+	_ "github.com/tianyuso/advisorTool/parser/tsql"
 )
 
 const (

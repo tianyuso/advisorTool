@@ -6,8 +6,8 @@ import (
 
 	parser "github.com/bytebase/parser/cosmosdb"
 
-	"advisorTool/common/log"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/common/log"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type querySpanPredicatePathsListener struct {

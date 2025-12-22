@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/store/model"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 // QueryType is the type of a query.

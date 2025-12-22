@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"advisorTool/common"
+	"github.com/tianyuso/advisorTool/common"
 )
 
 // Directive regex patterns

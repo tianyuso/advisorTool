@@ -5,7 +5,7 @@ import (
 	parser "github.com/bytebase/parser/tsql"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func GetStatementTypes(asts []base.AST) ([]string, error) {

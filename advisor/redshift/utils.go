@@ -4,8 +4,8 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // getANTLRTree extracts a single ANTLR tree from the advisor context.

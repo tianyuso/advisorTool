@@ -3,8 +3,8 @@ package mssql
 import (
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // getANTLRTree extracts TSQL ANTLR parse trees from the advisor context.

@@ -5,7 +5,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 func EngineSupportSQLReview(engine storepb.Engine) bool {

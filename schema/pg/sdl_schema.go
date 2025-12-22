@@ -1,10 +1,10 @@
 package pg
 
 import (
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 
-	"advisorTool/schema"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/schema"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 // processSchemaChanges processes explicit CREATE SCHEMA statements in the SDL

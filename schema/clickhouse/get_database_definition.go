@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 func init() {

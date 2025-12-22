@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"advisorTool/db"
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/db"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 // ReviewResult represents the review result in Inception-compatible format.
@@ -53,18 +53,19 @@ func CalculateAffectedRowsForStatements(statement string, engineType advisor.Eng
 
 	// 打开数据库连接
 	config := &db.ConnectionConfig{
-		DbType:      GetDbTypeString(engineType),
-		Host:        dbParams.Host,
-		Port:        dbParams.Port,
-		User:        dbParams.User,
-		Password:    dbParams.Password,
-		DbName:      dbParams.DbName,
-		Charset:     dbParams.Charset,
-		ServiceName: dbParams.ServiceName,
-		Sid:         dbParams.Sid,
-		SSLMode:     dbParams.SSLMode,
-		Timeout:     dbParams.Timeout,
-		Schema:      dbParams.Schema,
+		DbType:        GetDbTypeString(engineType),
+		Host:          dbParams.Host,
+		Port:          dbParams.Port,
+		User:          dbParams.User,
+		Password:      dbParams.Password,
+		DbName:        dbParams.DbName,
+		Charset:       dbParams.Charset,
+		ServiceName:   dbParams.ServiceName,
+		Sid:           dbParams.Sid,
+		SSLMode:       dbParams.SSLMode,
+		Timeout:       dbParams.Timeout,
+		Schema:        dbParams.Schema,
+		SetSearchPath: true, // 计算影响行数时设置 search_path
 	}
 
 	dbConn, err := db.OpenConnection(context.Background(), config)

@@ -1,7 +1,7 @@
 package pg
 
 import (
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // processEnumTypeChanges analyzes enum type changes between current and previous chunks

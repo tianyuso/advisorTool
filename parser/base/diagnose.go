@@ -5,7 +5,7 @@ import (
 
 	lsp "github.com/bytebase/lsp-protocol"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // DiagnosticContext is the context for diagnosing SQL statements.

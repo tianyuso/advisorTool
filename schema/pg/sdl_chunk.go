@@ -8,8 +8,8 @@ import (
 
 	parser "github.com/bytebase/parser/postgresql"
 
-	pgparser "advisorTool/parser/pg"
-	"advisorTool/schema"
+	pgparser "github.com/tianyuso/advisorTool/parser/pg"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // ChunkSDLText parses SDL text and extracts chunks for each database object.

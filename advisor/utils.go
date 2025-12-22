@@ -9,8 +9,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"advisorTool/common/log"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/common/log"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // NormalizeStatement limit the max length of the statements.

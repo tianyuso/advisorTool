@@ -10,8 +10,8 @@ import (
 	tidbast "github.com/pingcap/tidb/pkg/parser/ast"
 	"github.com/pkg/errors"
 
-	"advisorTool/generated-go/store"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 const (

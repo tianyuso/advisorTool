@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 // GetDatabaseMetadata retrieves the database schema metadata.

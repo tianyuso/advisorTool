@@ -7,9 +7,9 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 // MetadataDiffAction represents the type of change action.

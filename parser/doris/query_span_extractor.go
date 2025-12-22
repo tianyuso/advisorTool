@@ -8,7 +8,7 @@ import (
 	parser "github.com/bytebase/parser/doris"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type querySpanExtractor struct {

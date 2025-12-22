@@ -9,12 +9,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
-	mysqlparser "advisorTool/parser/mysql"
-	pgparser "advisorTool/parser/pg"
-	plsqlparser "advisorTool/parser/plsql"
-	tsqlparser "advisorTool/parser/tsql"
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/parser/base"
+	mysqlparser "github.com/tianyuso/advisorTool/parser/mysql"
+	pgparser "github.com/tianyuso/advisorTool/parser/pg"
+	plsqlparser "github.com/tianyuso/advisorTool/parser/plsql"
+	tsqlparser "github.com/tianyuso/advisorTool/parser/tsql"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 // CalculateAffectedRows 计算 UPDATE/DELETE 语句的影响行数
@@ -43,16 +43,30 @@ func CalculateAffectedRows(ctx context.Context, conn *sql.DB, statement string, 
 }
 
 // getStatementType 获取 SQL 语句类型
+// 能够跳过前导注释识别真正的 SQL 语句类型
 func getStatementType(statement string, engine advisor.Engine) string {
-	trimmed := strings.TrimSpace(statement)
-	upper := strings.ToUpper(trimmed)
+	// 逐行扫描，跳过注释和空行，找到第一个实际的 SQL 语句
+	lines := strings.Split(statement, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// 跳过空行和注释行
+		if trimmed == "" || strings.HasPrefix(trimmed, "--") || strings.HasPrefix(trimmed, "/*") {
+			continue
+		}
 
-	if strings.HasPrefix(upper, "UPDATE") {
-		return "UPDATE"
+		// 找到第一个非注释行，检查语句类型
+		upper := strings.ToUpper(trimmed)
+		if strings.HasPrefix(upper, "UPDATE") {
+			return "UPDATE"
+		}
+		if strings.HasPrefix(upper, "DELETE") {
+			return "DELETE"
+		}
+		// 找到第一个非注释行但不是 UPDATE/DELETE，返回 UNKNOWN
+		return "UNKNOWN"
 	}
-	if strings.HasPrefix(upper, "DELETE") {
-		return "DELETE"
-	}
+
+	// 所有行都是注释或空行
 	return "UNKNOWN"
 }
 
@@ -77,8 +91,11 @@ func rewriteToCountSQL(statement string, engine advisor.Engine) (string, error) 
 // 1. 单表: UPDATE table SET ... WHERE ...
 // 2. 连表: UPDATE t1 JOIN t2 ON ... SET ... WHERE ...
 func rewriteMySQLToCount(statement string) (string, error) {
+	// 移除前导注释
+	cleanSQL := removeLeadingComments(statement)
+
 	// 解析 MySQL SQL
-	res, err := mysqlparser.ParseMySQL(statement)
+	res, err := mysqlparser.ParseMySQL(cleanSQL)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse MySQL statement")
 	}
@@ -91,12 +108,12 @@ func rewriteMySQLToCount(statement string) (string, error) {
 	stmt := res[0]
 
 	// 根据语句类型处理
-	stmtType := strings.ToUpper(strings.TrimSpace(statement))
+	stmtType := strings.ToUpper(strings.TrimSpace(cleanSQL))
 
 	if strings.HasPrefix(stmtType, "UPDATE") {
-		return rewriteMySQLUpdateToCount(stmt, statement)
+		return rewriteMySQLUpdateToCount(stmt, cleanSQL)
 	} else if strings.HasPrefix(stmtType, "DELETE") {
-		return rewriteMySQLDeleteToCount(stmt, statement)
+		return rewriteMySQLDeleteToCount(stmt, cleanSQL)
 	}
 
 	return "", errors.New("not an UPDATE or DELETE statement")
@@ -127,11 +144,9 @@ func rewriteMySQLUpdateToCount(stmt *base.ParseResult, original string) (string,
 	whereIdx := findWhereClauseIndex(upper, setIdx)
 	var whereClause string
 	if whereIdx > 0 {
-		// 找到 WHERE 子句的结束位置（去除尾部的分号和空格）
-		whereEnd := len(original)
+		// 去除尾部的分号和空格
 		trimmed := strings.TrimRight(original[whereIdx:], "; \t\n\r")
-		whereEnd = whereIdx + len(trimmed)
-		whereClause = " " + strings.TrimSpace(original[whereIdx:whereEnd])
+		whereClause = " " + strings.TrimSpace(trimmed)
 	}
 
 	// 检查是否有 JOIN（连表更新）
@@ -192,8 +207,11 @@ func rewriteMySQLDeleteToCount(stmt *base.ParseResult, original string) (string,
 
 // rewritePostgresToCount 改写 PostgreSQL UPDATE/DELETE 语句为 COUNT 查询
 func rewritePostgresToCount(statement string) (string, error) {
+	// 移除前导注释，只保留实际的 SQL 语句
+	cleanSQL := removeLeadingComments(statement)
+
 	// 解析 PostgreSQL SQL
-	res, err := pgparser.ParsePostgreSQL(statement)
+	res, err := pgparser.ParsePostgreSQL(cleanSQL)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse PostgreSQL statement")
 	}
@@ -202,12 +220,12 @@ func rewritePostgresToCount(statement string) (string, error) {
 		return "", errors.New("no statements found")
 	}
 
-	stmtType := strings.ToUpper(strings.TrimSpace(statement))
+	stmtType := strings.ToUpper(strings.TrimSpace(cleanSQL))
 
 	if strings.HasPrefix(stmtType, "UPDATE") {
-		return rewritePostgresUpdateToCount(statement)
+		return rewritePostgresUpdateToCount(cleanSQL)
 	} else if strings.HasPrefix(stmtType, "DELETE") {
-		return rewritePostgresDeleteToCount(statement)
+		return rewritePostgresDeleteToCount(cleanSQL)
 	}
 
 	return "", errors.New("not an UPDATE or DELETE statement")
@@ -332,8 +350,11 @@ func rewritePostgresDeleteToCount(original string) (string, error) {
 
 // rewriteTSQLToCount 改写 SQL Server UPDATE/DELETE 语句为 COUNT 查询
 func rewriteTSQLToCount(statement string) (string, error) {
+	// 移除前导注释
+	cleanSQL := removeLeadingComments(statement)
+
 	// 解析 T-SQL
-	res, err := tsqlparser.ParseTSQL(statement)
+	res, err := tsqlparser.ParseTSQL(cleanSQL)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse T-SQL statement")
 	}
@@ -342,12 +363,12 @@ func rewriteTSQLToCount(statement string) (string, error) {
 		return "", errors.New("no statements found")
 	}
 
-	stmtType := strings.ToUpper(strings.TrimSpace(statement))
+	stmtType := strings.ToUpper(strings.TrimSpace(cleanSQL))
 
 	if strings.HasPrefix(stmtType, "UPDATE") {
-		return rewriteTSQLUpdateToCount(statement)
+		return rewriteTSQLUpdateToCount(cleanSQL)
 	} else if strings.HasPrefix(stmtType, "DELETE") {
-		return rewriteTSQLDeleteToCount(statement)
+		return rewriteTSQLDeleteToCount(cleanSQL)
 	}
 
 	return "", errors.New("not an UPDATE or DELETE statement")
@@ -463,8 +484,11 @@ func rewriteTSQLDeleteToCount(original string) (string, error) {
 
 // rewriteOracleToCount 改写 Oracle UPDATE/DELETE 语句为 COUNT 查询
 func rewriteOracleToCount(statement string) (string, error) {
+	// 移除前导注释
+	cleanSQL := removeLeadingComments(statement)
+
 	// 解析 Oracle PL/SQL
-	res, err := plsqlparser.ParsePLSQL(statement)
+	res, err := plsqlparser.ParsePLSQL(cleanSQL)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse PL/SQL statement")
 	}
@@ -473,12 +497,12 @@ func rewriteOracleToCount(statement string) (string, error) {
 		return "", errors.New("no statements found")
 	}
 
-	stmtType := strings.ToUpper(strings.TrimSpace(statement))
+	stmtType := strings.ToUpper(strings.TrimSpace(cleanSQL))
 
 	if strings.HasPrefix(stmtType, "UPDATE") {
-		return rewriteOracleUpdateToCount(statement)
+		return rewriteOracleUpdateToCount(cleanSQL)
 	} else if strings.HasPrefix(stmtType, "DELETE") {
-		return rewriteOracleDeleteToCount(statement)
+		return rewriteOracleDeleteToCount(cleanSQL)
 	}
 
 	return "", errors.New("not an UPDATE or DELETE statement")
@@ -617,4 +641,28 @@ func containsJoin(text string) bool {
 		}
 	}
 	return false
+}
+
+// removeLeadingComments 移除 SQL 语句前导的注释行
+// 保留实际的 SQL 语句部分
+func removeLeadingComments(statement string) string {
+	lines := strings.Split(statement, "\n")
+	var sqlLines []string
+	foundSQL := false
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// 如果还没找到 SQL 语句，跳过注释和空行
+		if !foundSQL {
+			if trimmed == "" || strings.HasPrefix(trimmed, "--") || strings.HasPrefix(trimmed, "/*") {
+				continue
+			}
+			// 找到第一个非注释行
+			foundSQL = true
+		}
+		// 开始收集 SQL 行
+		sqlLines = append(sqlLines, line)
+	}
+
+	return strings.Join(sqlLines, "\n")
 }

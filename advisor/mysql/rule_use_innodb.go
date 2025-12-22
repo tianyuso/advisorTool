@@ -10,11 +10,11 @@ import (
 
 	"github.com/bytebase/parser/mysql"
 
-	"advisorTool/advisor"
-	advisorcode "advisorTool/advisor/code"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	mysqlparser "advisorTool/parser/mysql"
+	"github.com/tianyuso/advisorTool/advisor"
+	advisorcode "github.com/tianyuso/advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	mysqlparser "github.com/tianyuso/advisorTool/parser/mysql"
 )
 
 const (

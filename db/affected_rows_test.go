@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 // TestRewriteMySQLToCount 测试 MySQL UPDATE/DELETE 改写为 COUNT

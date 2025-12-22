@@ -1,7 +1,7 @@
 package base
 
 import (
-	storebp "advisorTool/generated-go/store"
+	storebp "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 type BackupStatement struct {

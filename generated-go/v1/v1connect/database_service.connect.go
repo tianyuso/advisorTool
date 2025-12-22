@@ -5,7 +5,7 @@
 package v1connect
 
 import (
-	v1 "advisorTool/generated-go/v1"
+	v1 "github.com/tianyuso/advisorTool/generated-go/v1"
 	context "context"
 	errors "errors"
 	http "net/http"

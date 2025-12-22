@@ -10,9 +10,9 @@ import (
 	parser "github.com/bytebase/parser/plsql"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	oracleparser "advisorTool/parser/plsql"
-	"advisorTool/schema"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	oracleparser "github.com/tianyuso/advisorTool/parser/plsql"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 func init() {

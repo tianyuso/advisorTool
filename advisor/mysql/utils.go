@@ -9,8 +9,8 @@ import (
 	"github.com/bytebase/parser/mysql"
 	"github.com/pkg/errors"
 
-	"advisorTool/advisor"
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 type columnSet map[string]bool

@@ -1,7 +1,7 @@
 package pg
 
 import (
-	"advisorTool/schema"
+	"github.com/tianyuso/advisorTool/schema"
 )
 
 // processExtensionChanges processes extension changes between current and previous chunks

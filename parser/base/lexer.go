@@ -5,7 +5,7 @@ import (
 
 	"github.com/antlr4-go/antlr/v4"
 
-	"advisorTool/common"
+	"github.com/tianyuso/advisorTool/common"
 )
 
 func GetDefaultChannelTokenType(tokens []antlr.Token, base int, offset int) int {

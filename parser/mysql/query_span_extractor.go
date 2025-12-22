@@ -9,11 +9,11 @@ import (
 	parser "github.com/bytebase/parser/mysql"
 	"github.com/pkg/errors"
 
-	storepb "advisorTool/generated-go/store"
-	parsererror "advisorTool/parser/errors"
-	"advisorTool/store/model"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	parsererror "github.com/tianyuso/advisorTool/parser/errors"
+	"github.com/tianyuso/advisorTool/store/model"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // querySpanExtractor is the extractor to extract the query span from a single statement.

@@ -8,7 +8,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 // OutputResults outputs the review results in the specified format.

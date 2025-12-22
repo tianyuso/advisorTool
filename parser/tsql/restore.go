@@ -10,10 +10,10 @@ import (
 
 	parser "github.com/bytebase/parser/tsql"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/store/model"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/store/model"
 )
 
 const (

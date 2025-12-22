@@ -9,11 +9,11 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/snowflake"
 
-	"advisorTool/advisor"
-	"advisorTool/advisor/code"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	snowsqlparser "advisorTool/parser/snowflake"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	snowsqlparser "github.com/tianyuso/advisorTool/parser/snowflake"
 )
 
 var (

@@ -5,7 +5,7 @@ import (
 	parser "github.com/bytebase/parser/trino"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // extractPredicateColumnFromBooleanExpression extracts predicate columns from boolean expressions.

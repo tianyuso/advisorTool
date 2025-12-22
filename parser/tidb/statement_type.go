@@ -4,7 +4,7 @@ import (
 	tidbast "github.com/pingcap/tidb/pkg/parser/ast"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 func GetStatementTypes(asts []base.AST) ([]string, error) {

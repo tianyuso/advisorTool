@@ -18,10 +18,10 @@ import (
 
 	parser "github.com/bytebase/parser/tidb"
 
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
-	"advisorTool/parser/base"
-	"advisorTool/parser/tokenizer"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/tokenizer"
 )
 
 func init() {

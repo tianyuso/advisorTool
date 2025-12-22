@@ -7,7 +7,7 @@ import (
 	parser "github.com/bytebase/parser/redshift"
 	"github.com/pkg/errors"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 )
 
 // GetStatementTypes returns the statement types from the given AST.

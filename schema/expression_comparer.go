@@ -3,8 +3,8 @@ package schema
 import (
 	"strings"
 
-	storepb "advisorTool/generated-go/store"
-	pgast "advisorTool/schema/pg/ast"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
+	pgast "github.com/tianyuso/advisorTool/schema/pg/ast"
 )
 
 // CompareExpressionsSemantically compares two expressions semantically based on the engine type.

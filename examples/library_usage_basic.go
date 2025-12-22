@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 func main() {
@@ -85,3 +85,4 @@ func main() {
 		fmt.Println("✅ 审核通过")
 	}
 }
+

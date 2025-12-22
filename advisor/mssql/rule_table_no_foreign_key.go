@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/advisor/code"
 
 	"github.com/antlr4-go/antlr/v4"
 	parser "github.com/bytebase/parser/tsql"
 
-	"advisorTool/advisor"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 
-	tsqlparser "advisorTool/parser/tsql"
+	tsqlparser "github.com/tianyuso/advisorTool/parser/tsql"
 )
 
 var (

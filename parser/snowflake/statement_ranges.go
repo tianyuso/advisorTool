@@ -5,11 +5,11 @@ import (
 
 	"github.com/antlr4-go/antlr/v4"
 
-	"advisorTool/parser/base"
+	"github.com/tianyuso/advisorTool/parser/base"
 
 	parser "github.com/bytebase/parser/snowflake"
 
-	storepb "advisorTool/generated-go/store"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 func init() {

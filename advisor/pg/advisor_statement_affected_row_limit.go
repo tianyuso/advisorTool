@@ -9,10 +9,10 @@ import (
 
 	parser "github.com/bytebase/parser/postgresql"
 
-	"advisorTool/advisor"
-	"advisorTool/advisor/code"
-	"advisorTool/common"
-	storepb "advisorTool/generated-go/store"
+	"github.com/tianyuso/advisorTool/advisor"
+	"github.com/tianyuso/advisorTool/advisor/code"
+	"github.com/tianyuso/advisorTool/common"
+	storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 var (
