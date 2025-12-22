@@ -46,9 +46,9 @@ require (
 	github.com/hjson/hjson-go/v4 v4.5.0
 	github.com/jedib0t/go-pretty/v6 v6.7.7
 	github.com/lib/pq v1.10.9
-	github.com/microsoft/go-mssqldb v0.0.0-00010101000000-000000000000
+	github.com/microsoft/go-mssqldb v1.7.2
 	github.com/nyaruka/phonenumbers v1.6.6
-	github.com/pingcap/tidb v0.0.0-00010101000000-000000000000
+	github.com/pingcap/tidb v1.1.0-beta.0.20241125141335-ec8b81b98edc
 	github.com/pingcap/tidb/pkg/parser v0.0.0-20241125141335-ec8b81b98edc
 	github.com/pkg/errors v0.9.1
 	github.com/zeebo/xxh3 v1.0.2
