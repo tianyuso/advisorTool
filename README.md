@@ -274,8 +274,8 @@ module github.com/tianyuso/advisorTool  // ✅ GitHub 完整路径
 
 ```bash
 # 旧的导入方式
-import "advisorTool/pkg/advisor"
-import "advisorTool/services"
+import "github.com/tianyuso/advisorTool/pkg/advisor"
+import "github.com/tianyuso/advisorTool/services"
 
 # 新的导入方式
 import "github.com/tianyuso/advisorTool/pkg/advisor"
@@ -370,8 +370,8 @@ import (
 	"fmt"
 	"log"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {
@@ -455,7 +455,7 @@ import (
 	"fmt"
 	"log"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 func main() {
@@ -559,8 +559,8 @@ import (
 	"fmt"
 	"log"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {
@@ -650,8 +650,8 @@ import (
 	"fmt"
 	"log"
 
-	"advisorTool/db"
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/db"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 func main() {
@@ -737,7 +737,7 @@ import (
 	"fmt"
 	"log"
 
-	"advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
 func main() {
@@ -961,8 +961,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {
@@ -1058,8 +1058,8 @@ import (
 	"fmt"
 	"os"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {
@@ -1154,8 +1154,8 @@ import (
 	"context"
 	"log"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {
@@ -1195,8 +1195,8 @@ package main
 import (
 	"fmt"
 
-	"advisorTool/pkg/advisor"
-	"advisorTool/services"
+	"github.com/tianyuso/advisorTool/pkg/advisor"
+	"github.com/tianyuso/advisorTool/services"
 )
 
 func main() {
@@ -1767,8 +1767,8 @@ package myrule
 
 import (
     "context"
-    "advisorTool/advisor"
-    storepb "advisorTool/generated-go/store"
+    "github.com/tianyuso/advisorTool/advisor"
+    storepb "github.com/tianyuso/advisorTool/generated-go/store"
 )
 
 type MyCustomAdvisor struct{}

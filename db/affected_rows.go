@@ -29,14 +29,16 @@ func CalculateAffectedRows(ctx context.Context, conn *sql.DB, statement string, 
 	// 根据引擎类型改写 SQL
 	countSQL, err := rewriteToCountSQL(statement, engine)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to rewrite SQL to count statement")
+		return -1, errors.Wrap(err, "failed to rewrite SQL to count statement")
 	}
 
 	// 执行 COUNT 查询
 	var count int
 	err = conn.QueryRowContext(ctx, countSQL).Scan(&count)
+	// fmt.Println("countSQL: ", countSQL)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute count query")
+		// fmt.Println("err: ", err)
+		return -1, errors.Wrap(err, "failed to execute  query")
 	}
 
 	return count, nil

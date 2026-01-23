@@ -182,6 +182,11 @@ func (r *tableRequirePKRule) handleDropstmt(ctx *parser.DropstmtContext) {
 
 // validateFinalState checks all mentioned tables against catalog.Final (Simple Solution)
 func (r *tableRequirePKRule) validateFinalState() {
+	// Skip validation if no metadata is available
+	if r.finalMetadata == nil {
+		return
+	}
+
 	for tableKey, mention := range r.tableMentions {
 		// Parse table key: "schema.table"
 		schemaName, tableName := parseTableKey(tableKey)

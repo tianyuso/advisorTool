@@ -58,7 +58,7 @@ UPDATE users SET email = 'new@email.com';
 
 	// 5. 使用 services 包的 ConvertToReviewResults 转换结果
 	// 注意：这里不需要数据库连接，所以 affectedRowsMap 为空
-	affectedRowsMap := make(map[int]int)
+	affectedRowsMap := make(map[int]*services.AffectedRowsInfo)
 	results := services.ConvertToReviewResults(resp, sql, engineType, affectedRowsMap)
 
 	// 6. 输出结果（可以选择 JSON 或表格格式）

@@ -498,8 +498,31 @@ func SQLReviewCheck(
 		ruleList = append(ruleList, GetBuiltinRules(checkContext.DBType)...)
 	}
 
-	if asts == nil || len(ruleList) == 0 {
+	// Priority 1: Return parse errors if any (syntax errors from parser)
+	if len(parseResult) > 0 {
 		return parseResult, nil
+	}
+
+	// Priority 2: If no valid AST was generated, return syntax error
+	// This catches cases where the input is not valid SQL but parser didn't report error
+	if asts == nil || len(asts) == 0 {
+		return []*storepb.Advice{
+			{
+				Status:  storepb.Advice_ERROR,
+				Code:    201, // StatementSyntaxErrorCode
+				Title:   SyntaxErrorTitle,
+				Content: "Invalid SQL statement: no valid SQL syntax found",
+				StartPosition: &storepb.Position{
+					Line:   1,
+					Column: 1,
+				},
+			},
+		}, nil
+	}
+
+	// Priority 3: If no rules to check, return empty (all checks passed)
+	if len(ruleList) == 0 {
+		return nil, nil
 	}
 
 	if !builtinOnly && checkContext.FinalMetadata != nil {

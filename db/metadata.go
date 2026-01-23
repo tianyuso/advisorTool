@@ -498,16 +498,21 @@ func getMSSQLIndexes(ctx context.Context, db *sql.DB, schemaName, tableName stri
 	query := `
 		SELECT 
 			i.name as index_name,
-			STRING_AGG(c.name, ',') WITHIN GROUP (ORDER BY ic.key_ordinal) as column_names,
+			STUFF((
+				SELECT ',' + c2.name
+				FROM sys.index_columns ic2
+				INNER JOIN sys.columns c2 ON ic2.object_id = c2.object_id AND ic2.column_id = c2.column_id
+				WHERE ic2.object_id = i.object_id AND ic2.index_id = i.index_id
+				ORDER BY ic2.key_ordinal
+				FOR XML PATH(''), TYPE
+			).value('.', 'NVARCHAR(MAX)'), 1, 1, '') as column_names,
 			i.is_unique,
 			i.is_primary_key
 		FROM sys.indexes i
-		INNER JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
-		INNER JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
 		INNER JOIN sys.tables t ON i.object_id = t.object_id
 		INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
 		WHERE s.name = @p1 AND t.name = @p2 AND i.name IS NOT NULL
-		GROUP BY i.name, i.is_unique, i.is_primary_key
+		GROUP BY i.object_id, i.index_id, i.name, i.is_unique, i.is_primary_key
 		ORDER BY i.name
 	`
 	rows, err := db.QueryContext(ctx, query, schemaName, tableName)

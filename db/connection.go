@@ -61,14 +61,14 @@ func OpenConnection(ctx context.Context, config *ConnectionConfig) (*sql.DB, err
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	// // For PostgreSQL, set search_path if Schema is specified and SetSearchPath is true
-	// if config.DbType == "postgres" && config.Schema != "" && config.SetSearchPath {
-	// 	searchPathSQL := fmt.Sprintf("SET search_path TO %s, public", config.Schema)
-	// 	if _, err := db.ExecContext(ctx, searchPathSQL); err != nil {
-	// 		db.Close()
-	// 		return nil, fmt.Errorf("failed to set search_path: %w", err)
-	// 	}
-	// }
+	// For PostgreSQL, set search_path if Schema is specified and SetSearchPath is true
+	if config.DbType == "postgres" && config.Schema != "" && config.SetSearchPath {
+		searchPathSQL := fmt.Sprintf("SET search_path TO %s, public", config.Schema)
+		if _, err := db.ExecContext(ctx, searchPathSQL); err != nil {
+			db.Close()
+			return nil, fmt.Errorf("failed to set search_path: %w", err)
+		}
+	}
 
 	return db, nil
 }

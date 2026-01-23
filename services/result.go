@@ -40,10 +40,16 @@ type DBConnectionParams struct {
 	Schema      string
 }
 
+// AffectedRowsInfo holds the count and error information for affected rows calculation.
+type AffectedRowsInfo struct {
+	Count int
+	Error string
+}
+
 // CalculateAffectedRowsForStatements calculates affected rows for all SQL statements.
-// Returns a map of SQL index to affected rows count.
-func CalculateAffectedRowsForStatements(statement string, engineType advisor.Engine, dbParams *DBConnectionParams) map[int]int {
-	affectedRowsMap := make(map[int]int)
+// Returns a map of SQL index to AffectedRowsInfo (count and error).
+func CalculateAffectedRowsForStatements(statement string, engineType advisor.Engine, dbParams *DBConnectionParams) map[int]*AffectedRowsInfo {
+	affectedRowsMap := make(map[int]*AffectedRowsInfo)
 
 	if dbParams == nil || dbParams.Host == "" || dbParams.Port == 0 {
 		return affectedRowsMap
@@ -77,16 +83,20 @@ func CalculateAffectedRowsForStatements(statement string, engineType advisor.Eng
 	// 计算每个 SQL 语句的影响行数
 	for i, sql := range sqlStatements {
 		count, err := db.CalculateAffectedRows(context.Background(), dbConn, sql, engineType)
-		if err == nil {
-			affectedRowsMap[i] = count
+		info := &AffectedRowsInfo{
+			Count: count,
 		}
+		if err != nil {
+			info.Error = err.Error()
+		}
+		affectedRowsMap[i] = info
 	}
 
 	return affectedRowsMap
 }
 
 // ConvertToReviewResults converts advisor response to Inception-compatible format.
-func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engineType advisor.Engine, affectedRowsMap map[int]int) []ReviewResult {
+func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engineType advisor.Engine, affectedRowsMap map[int]*AffectedRowsInfo) []ReviewResult {
 	// Split SQL statements by semicolon
 	sqlStatements := SplitSQL(statement)
 
@@ -95,16 +105,23 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 		var results []ReviewResult
 		for i, sql := range sqlStatements {
 			affectedRows := 0
-			if count, ok := affectedRowsMap[i]; ok {
-				affectedRows = count
+			errorMessage := ""
+			errorLevel := "0"
+
+			if info, ok := affectedRowsMap[i]; ok {
+				affectedRows = info.Count
+				if info.Error != "" {
+					errorMessage = fmt.Sprintf("[AffectedRows] %s", info.Error)
+					errorLevel = "2"
+				}
 			}
 
 			results = append(results, ReviewResult{
 				OrderID:      i + 1,
 				Stage:        "CHECKED",
-				ErrorLevel:   "0",
+				ErrorLevel:   errorLevel,
 				StageStatus:  "Audit Completed",
-				ErrorMessage: "",
+				ErrorMessage: errorMessage,
 				SQL:          strings.TrimSpace(sql),
 				AffectedRows: affectedRows,
 				Sequence:     fmt.Sprintf("0_0_%08d", i),
@@ -150,10 +167,14 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 			errorMessages = append(errorMessages, fmt.Sprintf("[%s] %s", advice.Title, advice.Content))
 		}
 
-		// 计算影响行数
+		// 计算影响行数和错误信息
 		affectedRows := 0
-		if count, ok := affectedRowsMap[i]; ok {
-			affectedRows = count
+		if info, ok := affectedRowsMap[i]; ok {
+			affectedRows = info.Count
+			if info.Error != "" {
+				errorMessages = append(errorMessages, fmt.Sprintf("[AffectedRows] %s", info.Error))
+				errorLevel = "2"
+			}
 		}
 
 		results = append(results, ReviewResult{

@@ -99,6 +99,15 @@ func parseSingleTSQL(statement string, baseLine int) (*base.ParseResult, error) 
 		return nil, parserErrorListener.Err
 	}
 
+	// Validate that the parse tree contains valid SQL statements
+	if tree == nil || !containsValidTSQLStatement(tree) {
+		return nil, &base.SyntaxError{
+			Position: startPosition,
+			Message: "Invalid SQL statement: no valid SQL syntax found",
+			RawMessage: "no valid SQL syntax found",
+		}
+	}
+
 	result := &base.ParseResult{
 		Tree:     tree,
 		Tokens:   stream,
@@ -106,6 +115,75 @@ func parseSingleTSQL(statement string, baseLine int) (*base.ParseResult, error) 
 	}
 
 	return result, nil
+}
+
+// containsValidTSQLStatement checks if the parse tree contains at least one valid SQL statement.
+// This function validates that the input is actual SQL and not just random text that the parser
+// happened to accept without errors.
+func containsValidTSQLStatement(tree antlr.Tree) bool {
+	if tree == nil {
+		return false
+	}
+
+	// Cast to Tsql_fileContext to access batch list
+	tsqlFile, ok := tree.(*parser.Tsql_fileContext)
+	if !ok {
+		return false
+	}
+
+	// Check if there are any batches
+	batches := tsqlFile.AllBatch_without_go()
+	if len(batches) == 0 {
+		return false
+	}
+
+	// Check if at least one batch contains valid SQL statements
+	for _, batch := range batches {
+		if batch == nil {
+			continue
+		}
+
+		// Get all SQL clauses in this batch
+		clauses := batch.AllSql_clauses()
+		if len(clauses) == 0 {
+			continue
+		}
+
+		// Check if any clause contains a valid SQL statement
+		for _, clause := range clauses {
+			if clause == nil {
+				continue
+			}
+
+			// Check for various SQL statement types directly in the clause
+			// DML statements (SELECT, INSERT, UPDATE, DELETE)
+			if clause.Dml_clause() != nil {
+				return true
+			}
+			// DDL statements (CREATE, ALTER, DROP, etc.)
+			if clause.Ddl_clause() != nil {
+				return true
+			}
+			// Other statements (USE, SET, DECLARE, etc.)
+			if clause.Another_statement() != nil {
+				return true
+			}
+			// Backup/restore statements
+			if clause.Backup_statement() != nil {
+				return true
+			}
+			// Transaction control (BEGIN TRAN, COMMIT, ROLLBACK, etc.)
+			if clause.Cfl_statement() != nil {
+				return true
+			}
+			// DBCC statements
+			if clause.Dbcc_clause() != nil {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func normalizeSimpleNameSeparated(ctx parser.ISimple_nameContext, fallbackSchemaName string, _ bool) (string, string) {
