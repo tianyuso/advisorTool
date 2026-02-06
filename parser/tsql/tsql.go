@@ -102,8 +102,8 @@ func parseSingleTSQL(statement string, baseLine int) (*base.ParseResult, error) 
 	// Validate that the parse tree contains valid SQL statements
 	if tree == nil || !containsValidTSQLStatement(tree) {
 		return nil, &base.SyntaxError{
-			Position: startPosition,
-			Message: "Invalid SQL statement: no valid SQL syntax found",
+			Position:   startPosition,
+			Message:    "Invalid SQL statement: no valid SQL syntax found",
 			RawMessage: "no valid SQL syntax found",
 		}
 	}

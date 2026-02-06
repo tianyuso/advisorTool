@@ -505,7 +505,7 @@ func SQLReviewCheck(
 
 	// Priority 2: If no valid AST was generated, return syntax error
 	// This catches cases where the input is not valid SQL but parser didn't report error
-	if asts == nil || len(asts) == 0 {
+	if len(asts) == 0 {
 		return []*storepb.Advice{
 			{
 				Status:  storepb.Advice_ERROR,

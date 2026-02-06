@@ -23,3 +23,7 @@ go.work
 .DS_Store
 Thumbs.db
 
+
+# 编译后的二进制文件
+extractObject/cmd/cmd
+extractObject/cmd/extractobject
