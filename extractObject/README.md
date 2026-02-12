@@ -20,13 +20,13 @@ cd cmd
 go build -o extractobject main.go
 
 # 使用小写参数（推荐）
-./extractobject -db mysql -sql "SELECT * FROM users"
-./extractobject -db postgres -file query.sql
-./extractobject -db oracle -sql "SELECT * FROM hr.employees" -json
-./extractobject -db sqlserver -file query.sql
+./extractobject -dbtype mysql -sql "SELECT * FROM users"
+./extractobject -dbtype postgres -file query.sql
+./extractobject -dbtype oracle -sql "SELECT * FROM hr.employees" -json
+./extractobject -dbtype sqlserver -file query.sql
 
 # 也支持大写参数（向后兼容）
-./extractobject -db MYSQL -sql "SELECT * FROM users"
+./extractobject -dbtype MYSQL -sql "SELECT * FROM users"
 ```
 
 ### Go API 使用
@@ -84,11 +84,11 @@ go build -o extractobject main.go
 
 ```bash
 # 基本用法
-./extractobject -db <数据库类型> -sql "<SQL语句>"
-./extractobject -db <数据库类型> -file <SQL文件路径>
+./extractobject -dbtype <数据库类型> -sql "<SQL语句>"
+./extractobject -dbtype <数据库类型> -file <SQL文件路径>
 
 # JSON输出
-./extractobject -db <数据库类型> -sql "<SQL语句>" -json
+./extractobject -dbtype <数据库类型> -sql "<SQL语句>" -json
 
 # 查看版本
 ./extractobject -version
@@ -110,16 +110,16 @@ go build -o extractobject main.go
 
 ```bash
 # MySQL
-./extractobject -db mysql -sql "SELECT u.id FROM mydb.users u"
+./extractobject -dbtype mysql -sql "SELECT u.id FROM mydb.users u"
 
 # PostgreSQL
-./extractobject -db postgres -file query.sql
+./extractobject -dbtype postgres -file query.sql
 
 # Oracle - JSON输出
-./extractobject -db oracle -sql "SELECT * FROM hr.employees" -json
+./extractobject -dbtype oracle -sql "SELECT * FROM hr.employees" -json
 
 # SQL Server
-./extractobject -db sqlserver -file complex_query.sql
+./extractobject -dbtype sqlserver -file complex_query.sql
 ```
 
 ## API说明

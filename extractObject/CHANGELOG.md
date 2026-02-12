@@ -38,7 +38,7 @@
 - ✅ `final_demo.sh`
 - ✅ `test.sh`
 
-所有脚本中的参数已从大写（如 `-db MYSQL`）改为小写（如 `-db mysql`）
+所有脚本中的参数已从大写（如 `-dbtype MYSQL`）改为小写（如 `-dbtype mysql`）
 
 ### 3. 文档更新
 
@@ -86,14 +86,14 @@
 
 ```bash
 # 推荐格式
-./extractobject -db mysql -sql "SELECT * FROM users"
-./extractobject -db postgres -file query.sql
-./extractobject -db oracle -sql "SELECT * FROM hr.employees"
-./extractobject -db sqlserver -file query.sql
+./extractobject -dbtype mysql -sql "SELECT * FROM users"
+./extractobject -dbtype postgres -file query.sql
+./extractobject -dbtype oracle -sql "SELECT * FROM hr.employees"
+./extractobject -dbtype sqlserver -file query.sql
 
 # 也支持大写（向后兼容）
-./extractobject -db MYSQL -sql "SELECT * FROM users"
-./extractobject -db POSTGRESQL -file query.sql
+./extractobject -dbtype MYSQL -sql "SELECT * FROM users"
+./extractobject -dbtype POSTGRESQL -file query.sql
 ```
 
 ### Go API
@@ -142,10 +142,10 @@ cd cmd
 go build -o extractobject main.go
 
 # 手动测试
-./extractobject -db mysql -sql "SELECT * FROM users"
-./extractobject -db postgres -sql "SELECT * FROM users"
-./extractobject -db oracle -sql "SELECT * FROM users"
-./extractobject -db sqlserver -sql "SELECT * FROM users"
+./extractobject -dbtype mysql -sql "SELECT * FROM users"
+./extractobject -dbtype postgres -sql "SELECT * FROM users"
+./extractobject -dbtype oracle -sql "SELECT * FROM users"
+./extractobject -dbtype sqlserver -sql "SELECT * FROM users"
 ```
 
 ## 文件清单

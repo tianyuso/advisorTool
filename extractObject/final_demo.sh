@@ -13,17 +13,17 @@ echo ""
 echo "【2】命令行工具演示 - MySQL"
 echo "----------------------------------------"
 cd cmd
-./extractobject -db mysql -sql "SELECT u.id, u.name FROM mydb.users u WHERE u.status = 'active'"
+./extractobject -dbtype mysql -sql "SELECT u.id, u.name FROM mydb.users u WHERE u.status = 'active'"
 echo ""
 
 echo "【3】命令行工具演示 - PostgreSQL"
 echo "----------------------------------------"
-./extractobject -db postgres -sql "SELECT * FROM public.products p JOIN public.categories c ON p.cat_id = c.id"
+./extractobject -dbtype postgres -sql "SELECT * FROM public.products p JOIN public.categories c ON p.cat_id = c.id"
 echo ""
 
 echo "【4】JSON输出演示"
 echo "----------------------------------------"
-./extractobject -db mysql -sql "SELECT * FROM mydb.users" -json
+./extractobject -dbtype mysql -sql "SELECT * FROM mydb.users" -json
 echo ""
 
 cd ..

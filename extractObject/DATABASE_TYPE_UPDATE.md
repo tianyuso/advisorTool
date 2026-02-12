@@ -8,18 +8,18 @@
 
 ### 之前（大写格式）
 ```bash
-./extractobject -db MYSQL -sql "SELECT * FROM users"
-./extractobject -db POSTGRESQL -sql "SELECT * FROM users"
-./extractobject -db ORACLE -sql "SELECT * FROM users"
-./extractobject -db SQLSERVER -sql "SELECT * FROM users"
+./extractobject -dbtype MYSQL -sql "SELECT * FROM users"
+./extractobject -dbtype POSTGRESQL -sql "SELECT * FROM users"
+./extractobject -dbtype ORACLE -sql "SELECT * FROM users"
+./extractobject -dbtype SQLSERVER -sql "SELECT * FROM users"
 ```
 
 ### 现在（小写格式，推荐）
 ```bash
-./extractobject -db mysql -sql "SELECT * FROM users"
-./extractobject -db postgres -sql "SELECT * FROM users"
-./extractobject -db oracle -sql "SELECT * FROM users"
-./extractobject -db sqlserver -sql "SELECT * FROM users"
+./extractobject -dbtype mysql -sql "SELECT * FROM users"
+./extractobject -dbtype postgres -sql "SELECT * FROM users"
+./extractobject -dbtype oracle -sql "SELECT * FROM users"
+./extractobject -dbtype sqlserver -sql "SELECT * FROM users"
 ```
 
 ## 支持的数据库类型
@@ -41,8 +41,8 @@
 
 ```bash
 # 以下两种方式都可以正常工作
-./extractobject -db mysql -sql "SELECT * FROM users"
-./extractobject -db MYSQL -sql "SELECT * FROM users"
+./extractobject -dbtype mysql -sql "SELECT * FROM users"
+./extractobject -dbtype MYSQL -sql "SELECT * FROM users"
 ```
 
 ## 代码使用
@@ -65,14 +65,14 @@ tables, err := extractor.ExtractTables(dbType, sql)
 ### 命令行使用
 ```bash
 # 推荐使用小写
-./extractobject -db mysql -file query.sql
-./extractobject -db postgres -sql "SELECT * FROM users"
-./extractobject -db oracle -file query.sql -json
-./extractobject -db sqlserver -file query.sql
+./extractobject -dbtype mysql -file query.sql
+./extractobject -dbtype postgres -sql "SELECT * FROM users"
+./extractobject -dbtype oracle -file query.sql -json
+./extractobject -dbtype sqlserver -file query.sql
 
 # 也支持大写（向后兼容）
-./extractobject -db MYSQL -file query.sql
-./extractobject -db POSTGRESQL -file query.sql
+./extractobject -dbtype MYSQL -file query.sql
+./extractobject -dbtype POSTGRESQL -file query.sql
 ```
 
 ## 更新的文件列表

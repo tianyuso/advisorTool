@@ -17,11 +17,11 @@ if [ -f extractobject ]; then
     
     echo ""
     echo "========== 测试命令行工具 =========="
-    ./extractobject -db mysql -sql "SELECT u.id, o.order_id FROM mydb.users u JOIN orders o ON u.id = o.user_id"
+    ./extractobject -dbtype mysql -sql "SELECT u.id, o.order_id FROM mydb.users u JOIN orders o ON u.id = o.user_id"
     
     echo ""
     echo "========== JSON输出测试 =========="
-    ./extractobject -db mysql -sql "SELECT * FROM mydb.users AS u" -json
+    ./extractobject -dbtype mysql -sql "SELECT * FROM mydb.users AS u" -json
 else
     echo "编译失败"
     exit 1

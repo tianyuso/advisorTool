@@ -29,8 +29,8 @@ test_db() {
     local db_name=$2
     local sql=$3
     
-    echo "► 测试 $db_name (参数: -db $db_type)"
-    output=$(./extractobject -db "$db_type" -sql "$sql" 2>&1)
+    echo "► 测试 $db_name (参数: -dbtype $db_type)"
+    output=$(./extractobject -dbtype "$db_type" -sql "$sql" 2>&1)
     if [ $? -eq 0 ]; then
         echo "  ✓ 通过"
         ((passed++))
@@ -74,7 +74,7 @@ echo ""
 echo "【5】测试无效参数（应该失败）"
 echo "----------------------------------------"
 echo "► 测试无效数据库类型"
-output=$(./extractobject -db "invalid_db" -sql "SELECT * FROM users" 2>&1)
+output=$(./extractobject -dbtype "invalid_db" -sql "SELECT * FROM users" 2>&1)
 if [ $? -ne 0 ] && echo "$output" | grep -q "不支持的数据库类型"; then
     echo "  ✓ 正确返回错误信息"
     ((passed++))

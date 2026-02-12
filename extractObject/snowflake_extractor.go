@@ -70,18 +70,18 @@ func extractSnowflakeTableInfo(ctx *parser.Object_nameContext) TableInfo {
 
 	// Snowflake支持格式: database.schema.table 或 schema.table 或 table
 	fullName := ctx.GetText()
-	
+
 	// 移除引号和空白
 	fullName = strings.Trim(fullName, "\"' \t\n")
-	
+
 	// 分割名称部分
 	parts := strings.Split(fullName, ".")
-	
+
 	// 清理每个部分
 	for i := range parts {
 		parts[i] = strings.Trim(parts[i], "\"' \t\n")
 	}
-	
+
 	switch len(parts) {
 	case 1:
 		// 只有表名
@@ -99,5 +99,3 @@ func extractSnowflakeTableInfo(ctx *parser.Object_nameContext) TableInfo {
 
 	return tableInfo
 }
-
-

@@ -222,3 +222,6 @@ func getStatusIcon(status advisor.AdviceStatus) string {
 
 
 
+
+
+

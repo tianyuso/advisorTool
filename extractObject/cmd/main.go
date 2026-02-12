@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	dbType     = flag.String("db", "mysql", "数据库类型 (mysql, postgres, oracle, sqlserver, tidb, mariadb, oceanbase, snowflake)")
+	dbType     = flag.String("dbtype", "mysql", "数据库类型 (mysql, postgres, oracle, sqlserver, tidb, mariadb, oceanbase, snowflake)")
 	sqlFile    = flag.String("file", "", "SQL文件路径")
 	sqlText    = flag.String("sql", "", "SQL语句")
 	outputJSON = flag.Bool("json", false, "以JSON格式输出")

@@ -220,3 +220,6 @@ REPLACE INTO mydb.product_cache (product_id, product_name, price)
 SELECT id, name, price FROM products WHERE updated_at > NOW() - INTERVAL 1 HOUR;
 
 
+
+
+

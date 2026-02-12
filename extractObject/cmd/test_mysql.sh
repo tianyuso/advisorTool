@@ -24,10 +24,10 @@ echo ""
 # 测试1: 基础全面测试
 echo "► 测试1: 基础全面测试 (30个场景)"
 echo "----------------------------------------"
-./extractobject -db mysql -file test_mysql_comprehensive.sql > /dev/null 2>&1
+./extractobject -dbtype mysql -file test_mysql_comprehensive.sql > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "✓ 基础测试通过"
-    RESULT1=$(./extractobject -db mysql -file test_mysql_comprehensive.sql 2>/dev/null | head -1)
+    RESULT1=$(./extractobject -dbtype mysql -file test_mysql_comprehensive.sql 2>/dev/null | head -1)
     echo "  $RESULT1"
 else
     echo "✗ 基础测试失败"
@@ -38,10 +38,10 @@ echo ""
 # 测试2: 边缘情况测试
 echo "► 测试2: 边缘情况测试 (15个场景)"
 echo "----------------------------------------"
-./extractobject -db mysql -file test_mysql_edge_cases.sql > /dev/null 2>&1
+./extractobject -dbtype mysql -file test_mysql_edge_cases.sql > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "✓ 边缘测试通过"
-    RESULT2=$(./extractobject -db mysql -file test_mysql_edge_cases.sql 2>/dev/null | head -1)
+    RESULT2=$(./extractobject -dbtype mysql -file test_mysql_edge_cases.sql 2>/dev/null | head -1)
     echo "  $RESULT2"
 else
     echo "✗ 边缘测试失败"
@@ -52,7 +52,7 @@ echo ""
 # 测试3: JSON输出测试
 echo "► 测试3: JSON输出格式"
 echo "----------------------------------------"
-JSON_OUTPUT=$(./extractobject -db mysql -sql "SELECT * FROM users" -json 2>/dev/null)
+JSON_OUTPUT=$(./extractobject -dbtype mysql -sql "SELECT * FROM users" -json 2>/dev/null)
 if echo "$JSON_OUTPUT" | grep -q "TBName"; then
     echo "✓ JSON输出正常"
 else
@@ -64,7 +64,7 @@ echo ""
 # 测试4: 单条SQL测试
 echo "► 测试4: 单条SQL命令行测试"
 echo "----------------------------------------"
-SINGLE_TEST=$(./extractobject -db mysql -sql "SELECT * FROM mydb.users u JOIN orders o ON u.id = o.user_id" 2>/dev/null | grep "找到")
+SINGLE_TEST=$(./extractobject -dbtype mysql -sql "SELECT * FROM mydb.users u JOIN orders o ON u.id = o.user_id" 2>/dev/null | grep "找到")
 if [ -n "$SINGLE_TEST" ]; then
     echo "✓ 单条SQL测试通过"
     echo "  $SINGLE_TEST"

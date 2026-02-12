@@ -58,22 +58,22 @@ EOF
 
 echo "测试 1: PostgreSQL CTE 识别"
 echo "-------------------------------------------"
-./extractobject -db postgres -file /tmp/test_pg_cte.sql
+./extractobject -dbtype postgres -file /tmp/test_pg_cte.sql
 echo ""
 
 echo "测试 2: PostgreSQL CTE JSON输出"
 echo "-------------------------------------------"
-./extractobject -db postgres -file /tmp/test_pg_cte.sql -json
+./extractobject -dbtype postgres -file /tmp/test_pg_cte.sql -json
 echo ""
 
 echo "测试 3: MySQL 递归CTE 识别"
 echo "-------------------------------------------"
-./extractobject -db mysql -file /tmp/test_mysql_cte.sql
+./extractobject -dbtype mysql -file /tmp/test_mysql_cte.sql
 echo ""
 
 echo "测试 4: MySQL 递归CTE JSON输出"
 echo "-------------------------------------------"
-./extractobject -db mysql -file /tmp/test_mysql_cte.sql -json
+./extractobject -dbtype mysql -file /tmp/test_mysql_cte.sql -json
 echo ""
 
 # 清理临时文件

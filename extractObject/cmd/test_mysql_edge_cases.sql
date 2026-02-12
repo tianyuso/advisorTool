@@ -145,3 +145,6 @@ RIGHT JOIN date_table t4 ON t1.id = t4.base_id
 WHERE t1.status = 'ready';
 
 
+
+
+

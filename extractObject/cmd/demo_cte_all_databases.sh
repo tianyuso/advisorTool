@@ -78,31 +78,31 @@ EOF
 echo "=========================================="
 echo "测试 1: PostgreSQL CTE 识别"
 echo "=========================================="
-./extractobject -db postgres -file /tmp/test_pg_cte.sql
+./extractobject -dbtype postgres -file /tmp/test_pg_cte.sql
 echo ""
 
 echo "=========================================="
 echo "测试 2: MySQL 递归CTE 识别"
 echo "=========================================="
-./extractobject -db mysql -file /tmp/test_mysql_cte.sql
+./extractobject -dbtype mysql -file /tmp/test_mysql_cte.sql
 echo ""
 
 echo "=========================================="
 echo "测试 3: Oracle CTE 识别"
 echo "=========================================="
-./extractobject -db oracle -file /tmp/test_oracle_cte.sql
+./extractobject -dbtype oracle -file /tmp/test_oracle_cte.sql
 echo ""
 
 echo "=========================================="
 echo "测试 4: SQL Server CTE 识别"
 echo "=========================================="
-./extractobject -db sqlserver -file /tmp/test_sqlserver_cte.sql
+./extractobject -dbtype sqlserver -file /tmp/test_sqlserver_cte.sql
 echo ""
 
 echo "=========================================="
 echo "JSON 格式示例 (PostgreSQL)"
 echo "=========================================="
-./extractobject -db postgres -file /tmp/test_pg_cte.sql -json
+./extractobject -dbtype postgres -file /tmp/test_pg_cte.sql -json
 echo ""
 
 # 清理临时文件
