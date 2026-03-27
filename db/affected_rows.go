@@ -134,7 +134,7 @@ func rewriteMySQLUpdateToCount(stmt *base.ParseResult, original string) (string,
 		return "", errors.New("UPDATE keyword not found")
 	}
 
-	setIdx := strings.Index(upper, "SET")
+	setIdx := findKeywordIndex(upper, "SET", updateIdx+6)
 	if setIdx == -1 {
 		return "", errors.New("SET keyword not found")
 	}
@@ -245,7 +245,7 @@ func rewritePostgresUpdateToCount(original string) (string, error) {
 		return "", errors.New("UPDATE keyword not found")
 	}
 
-	setIdx := strings.Index(upper, "SET")
+	setIdx := findKeywordIndex(upper, "SET", updateIdx+6)
 	if setIdx == -1 {
 		return "", errors.New("SET keyword not found")
 	}
@@ -388,7 +388,7 @@ func rewriteTSQLUpdateToCount(original string) (string, error) {
 		return "", errors.New("UPDATE keyword not found")
 	}
 
-	setIdx := strings.Index(upper, "SET")
+	setIdx := findKeywordIndex(upper, "SET", updateIdx+6)
 	if setIdx == -1 {
 		return "", errors.New("SET keyword not found")
 	}
@@ -520,7 +520,7 @@ func rewriteOracleUpdateToCount(original string) (string, error) {
 		return "", errors.New("UPDATE keyword not found")
 	}
 
-	setIdx := strings.Index(upper, "SET")
+	setIdx := findKeywordIndex(upper, "SET", updateIdx+6)
 	if setIdx == -1 {
 		return "", errors.New("SET keyword not found")
 	}

@@ -159,6 +159,12 @@ func TestRewriteTSQLToCount(t *testing.T) {
 			wantErr:  false,
 		},
 		{
+			name:     "SQL Server UPDATE表名包含SET子串",
+			input:    "UPDATE EAM_Asset SET AS_Site='Wuhan' WHERE as_msno IN (SELECT AE_ASNo FROM EAM_T_AssetExtend WHERE AE_WS_PlaceNo='323')",
+			expected: "SELECT COUNT(1) FROM EAM_Asset WHERE as_msno IN (SELECT AE_ASNo FROM EAM_T_AssetExtend WHERE AE_WS_PlaceNo='323')",
+			wantErr:  false,
+		},
+		{
 			name:     "SQL Server单表DELETE带WHERE",
 			input:    "DELETE FROM users WHERE id > 100",
 			expected: "SELECT COUNT(1) FROM users WHERE id > 100",
