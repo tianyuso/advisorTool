@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/tianyuso/advisorTool/db"
+	parserbase "github.com/tianyuso/advisorTool/parser/base"
 	"github.com/tianyuso/advisorTool/pkg/advisor"
 )
 
@@ -46,6 +47,12 @@ type AffectedRowsInfo struct {
 	Error string
 }
 
+type splitStatement struct {
+	Text      string
+	StartLine int
+	EndLine   int
+}
+
 // CalculateAffectedRowsForStatements calculates affected rows for all SQL statements.
 // Returns a map of SQL index to AffectedRowsInfo (count and error).
 func CalculateAffectedRowsForStatements(statement string, engineType advisor.Engine, dbParams *DBConnectionParams) map[int]*AffectedRowsInfo {
@@ -55,7 +62,7 @@ func CalculateAffectedRowsForStatements(statement string, engineType advisor.Eng
 		return affectedRowsMap
 	}
 
-	sqlStatements := SplitSQL(statement)
+	sqlStatements := splitSQLWithMetadata(statement, engineType)
 
 	// 打开数据库连接
 	config := &db.ConnectionConfig{
@@ -82,7 +89,7 @@ func CalculateAffectedRowsForStatements(statement string, engineType advisor.Eng
 
 	// 计算每个 SQL 语句的影响行数
 	for i, sql := range sqlStatements {
-		count, err := db.CalculateAffectedRows(context.Background(), dbConn, sql, engineType)
+		count, err := db.CalculateAffectedRows(context.Background(), dbConn, sql.Text, engineType)
 		info := &AffectedRowsInfo{
 			Count: count,
 		}
@@ -97,8 +104,7 @@ func CalculateAffectedRowsForStatements(statement string, engineType advisor.Eng
 
 // ConvertToReviewResults converts advisor response to Inception-compatible format.
 func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engineType advisor.Engine, affectedRowsMap map[int]*AffectedRowsInfo) []ReviewResult {
-	// Split SQL statements by semicolon
-	sqlStatements := SplitSQL(statement)
+	sqlStatements := splitSQLWithMetadata(statement, engineType)
 
 	// If no issues found, return success for each statement
 	if len(resp.Advices) == 0 {
@@ -122,7 +128,7 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 				ErrorLevel:   errorLevel,
 				StageStatus:  "Audit Completed",
 				ErrorMessage: errorMessage,
-				SQL:          strings.TrimSpace(sql),
+				SQL:          sql.Text,
 				AffectedRows: affectedRows,
 				Sequence:     fmt.Sprintf("0_0_%08d", i),
 				BackupDBName: "",
@@ -142,7 +148,7 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 			line = int(advice.StartPosition.Line)
 		}
 		// Find which SQL statement this line belongs to
-		sqlIndex := FindSQLIndexByLine(sqlStatements, statement, line)
+		sqlIndex := findSQLIndexByLine(sqlStatements, line)
 		advicesBySQL[sqlIndex] = append(advicesBySQL[sqlIndex], advice)
 	}
 
@@ -183,7 +189,7 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 			ErrorLevel:   errorLevel,
 			StageStatus:  stageStatus,
 			ErrorMessage: strings.Join(errorMessages, "\n"),
-			SQL:          strings.TrimSpace(sql),
+			SQL:          sql.Text,
 			AffectedRows: affectedRows,
 			Sequence:     fmt.Sprintf("0_0_%08d", i),
 			BackupDBName: "",
@@ -194,6 +200,59 @@ func ConvertToReviewResults(resp *advisor.ReviewResponse, statement string, engi
 	}
 
 	return results
+}
+
+// splitSQLWithMetadata splits SQL by engine parser and keeps line range metadata.
+func splitSQLWithMetadata(statement string, engineType advisor.Engine) []splitStatement {
+	sqlList, err := parserbase.SplitMultiSQL(engineType, statement)
+	if err != nil {
+		return splitSQLBySemicolon(statement)
+	}
+
+	sqlList = parserbase.FilterEmptySQL(sqlList)
+	var result []splitStatement
+	for _, sql := range sqlList {
+		text := strings.TrimSpace(sql.Text)
+		if text == "" {
+			continue
+		}
+
+		startLine := sql.BaseLine + 1
+		endLine := startLine + strings.Count(sql.Text, "\n")
+		if sql.Start != nil && sql.Start.Line > 0 {
+			startLine = int(sql.Start.Line)
+		}
+		if sql.End != nil && sql.End.Line > 0 {
+			endLine = int(sql.End.Line)
+		}
+		if endLine < startLine {
+			endLine = startLine
+		}
+
+		result = append(result, splitStatement{
+			Text:      text,
+			StartLine: startLine,
+			EndLine:   endLine,
+		})
+	}
+
+	if len(result) == 0 {
+		return splitSQLBySemicolon(statement)
+	}
+	return result
+}
+
+func splitSQLBySemicolon(statement string) []splitStatement {
+	parts := SplitSQL(statement)
+	result := make([]splitStatement, 0, len(parts))
+	for _, part := range parts {
+		result = append(result, splitStatement{
+			Text:      part,
+			StartLine: 1,
+			EndLine:   1,
+		})
+	}
+	return result
 }
 
 // SplitSQL splits SQL statements by semicolon.
@@ -214,41 +273,23 @@ func SplitSQL(statement string) []string {
 	return result
 }
 
-// FindSQLIndexByLine finds which SQL statement a line belongs to.
-func FindSQLIndexByLine(sqlStatements []string, fullStatement string, line int) int {
+// findSQLIndexByLine finds which SQL statement a line belongs to.
+func findSQLIndexByLine(sqlStatements []splitStatement, line int) int {
 	if len(sqlStatements) <= 1 {
 		return 0
 	}
 
-	// Count lines to find which statement the line belongs to
-	lines := strings.Split(fullStatement, "\n")
-	currentLine := 1
-	currentSQLIndex := 0
-	currentSQLStart := 0
-
-	for i, l := range lines {
-		if i > 0 {
-			currentLine++
-		}
-
-		// Check if this line contains a semicolon (end of statement)
-		if strings.Contains(l, ";") {
-			if line >= currentSQLStart && line <= currentLine {
-				return currentSQLIndex
-			}
-			currentSQLIndex++
-			currentSQLStart = currentLine + 1
-			if currentSQLIndex >= len(sqlStatements) {
-				currentSQLIndex = len(sqlStatements) - 1
-			}
+	for i, sql := range sqlStatements {
+		if line >= sql.StartLine && line <= sql.EndLine {
+			return i
 		}
 	}
 
-	// If not found, return the last index or 0
-	if line >= currentSQLStart {
-		return currentSQLIndex
+	// If not found, return nearest range.
+	if line < sqlStatements[0].StartLine {
+		return 0
 	}
-	return 0
+	return len(sqlStatements) - 1
 }
 
 // GetDbTypeString converts Engine type to database type string.
